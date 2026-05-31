@@ -356,7 +356,7 @@ export default function App() {
       </main>
 
       <footer style={{ padding: "20px 40px", borderTop: "1px solid rgba(225, 219, 209, 0.12)", fontSize: "0.8rem", color: "var(--sand-dark)", background: "rgba(26, 27, 28, 0.2)", marginTop: "auto" }}>
-        © 2026 Mellow Conversational Engine. All database updates and scraping nodes running live.
+        © 2026 Mellow Conversational Engine. Made by Team Falcons May 2026.
       </footer>
     </div>
   );
