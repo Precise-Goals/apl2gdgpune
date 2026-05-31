@@ -138,6 +138,8 @@ Mellow was conceptualized, designed, and engineered by **Team Falcons** in May 2
 * **Dhiraj Takale** — Docker Container & Devops Deployment Specialist
 
 ---
+![alt text](image-2.png)
 <p align="center">
   ✦ Made with pride by Team Falcons May 2026 ✦
+<br> For GDG Pune APL 2026
 </p>
