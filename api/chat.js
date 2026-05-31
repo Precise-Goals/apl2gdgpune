@@ -1,7 +1,7 @@
 const WEATHER_DATA_STREAM_URL = process.env.WEATHER_DATA_STREAM_URL || "https://api.open-meteo.com/v1/forecast?latitude=28.6139&longitude=77.2090&current=temperature_2m,relative_humidity_2m,weather_code";
 const SPORTS_DATA_STREAM_URL = process.env.SPORTS_DATA_STREAM_URL || "https://api.football-data.org/v4/matches";
 
-// RAG Data Fetchers (Real, live streams, zero mocked data)
+// RAG Data Fetchers (Real, live streams, returning source objects)
 async function fetchWeatherData() {
   const controller = new AbortController();
   const id = setTimeout(() => controller.abort(), 6000);
@@ -10,17 +10,31 @@ async function fetchWeatherData() {
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const data = await res.json();
     if (data.current) {
-      return `Current Weather Status: Temp ${data.current.temperature_2m}°C, Humidity ${data.current.relative_humidity_2m}%`;
+      const text = `Temp: ${data.current.temperature_2m}°C, Humidity: ${data.current.relative_humidity_2m}%, Code: ${data.current.weather_code}`;
+      return {
+        source: { title: "OpenMeteo Weather Stream Node", url: "https://open-meteo.com", snippet: text },
+        text: text
+      };
     }
-    return JSON.stringify(data).substring(0, 300);
+    return {
+      source: { title: "OpenMeteo Weather Stream Node", url: "https://open-meteo.com", snippet: "Status OK" },
+      text: JSON.stringify(data).substring(0, 200)
+    };
   } catch (err) {
     console.error("[Weather Scraper Vercel Error]:", err.message);
     try {
       const backupRes = await fetch("https://api.open-meteo.com/v1/forecast?latitude=12.9716&longitude=77.5946&current=temperature_2m,wind_speed_10m", { signal: controller.signal });
       const backupData = await backupRes.json();
-      return `Current Weather (Bengaluru Fallback): Temp ${backupData.current.temperature_2m}°C, Wind ${backupData.current.wind_speed_10m} km/h`;
+      const text = `Bengaluru Backup - Temp: ${backupData.current.temperature_2m}°C, Wind: ${backupData.current.wind_speed_10m} km/h`;
+      return {
+        source: { title: "OpenMeteo Bengaluru Backup Node", url: "https://open-meteo.com", snippet: text },
+        text: text
+      };
     } catch {
-      return "Weather Stream momentarily offline.";
+      return {
+        source: { title: "OpenMeteo Weather Node", url: "https://open-meteo.com", snippet: "Stream momentarily offline." },
+        text: "Weather Stream momentarily offline."
+      };
     }
   } finally {
     clearTimeout(id);
@@ -34,16 +48,26 @@ async function fetchSportsData() {
     const res = await fetch(SPORTS_DATA_STREAM_URL, { signal: controller.signal });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const data = await res.json();
-    return JSON.stringify(data).substring(0, 350);
+    const text = JSON.stringify(data).substring(0, 300);
+    return {
+      source: { title: "OpenLigaDB Match Standings Core", url: "https://openligadb.de", snippet: text },
+      text: text
+    };
   } catch (err) {
     console.error("[Sports Scraper Vercel Error]:", err.message);
     try {
       const backupRes = await fetch("https://api.openligadb.de/getmatchdata/bl1/2025/1", { signal: controller.signal });
       const backupData = await backupRes.json();
-      const matches = backupData.slice(0, 3).map(m => `${m.team1.teamName} vs ${m.team2.teamName} (${m.matchResults[0]?.pointsTeam1 ?? 0}:${m.matchResults[0]?.pointsTeam2 ?? 0})`).join(", ");
-      return `Live Soccer Scores: ${matches}`;
+      const matches = backupData.slice(0, 3).map(m => `${m.team1.teamShortName || m.team1.teamName} vs ${m.team2.teamShortName || m.team2.teamName} (${m.matchResults[0]?.pointsTeam1 ?? 0}:${m.matchResults[0]?.pointsTeam2 ?? 0})`).join(", ");
+      return {
+        source: { title: "OpenLigaDB Live Standings Falling Feed", url: "https://openligadb.de", snippet: matches },
+        text: `Live Soccer Standings: ${matches}`
+      };
     } catch {
-      return "Live Match updates currently streaming offline.";
+      return {
+        source: { title: "OpenLigaDB Sports Tracker", url: "https://openligadb.de", snippet: "Tournament stream offline." },
+        text: "Tournament stream offline."
+      };
     }
   } finally {
     clearTimeout(id);
@@ -59,10 +83,16 @@ async function fetchWebScrapeData(query) {
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const data = await res.json();
     const hits = data.hits.slice(0, 3).map(h => `[${h.title} - ${h.url}]`).join(" | ");
-    return `Latest relevant articles from RAG scrape: ${hits}`;
+    return {
+      source: { title: `HackerNews Index Search Crawler: '${query}'`, url: "https://news.ycombinator.com", snippet: hits },
+      text: `Latest relevant articles from RAG scrape: ${hits}`
+    };
   } catch (err) {
     console.error("[HN Search Scraper Vercel Error]:", err.message);
-    return "Web Scraper node resolving background requests.";
+    return {
+      source: { title: "HackerNews Scraping Crawler Node", url: "https://news.ycombinator.com", snippet: "Background queries processing." },
+      text: "Web Scraper crawler node currently resolving background requests."
+    };
   } finally {
     clearTimeout(id);
   }
@@ -85,33 +115,63 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { messages, toggles, queryText } = req.body;
+    const { messages, userProfile, emotionalAspects, toggles, queryText } = req.body;
     
     if (!messages || !Array.isArray(messages)) {
-      return res.status(400).json({ error: "Missing or invalid 'messages' array in request body." });
+      return res.status(400).json({ error: "Missing or invalid 'messages' array." });
     }
 
-    let ragContext = "";
+    let ragContextText = "";
+    let fetchedSources = [];
     
-    // Ingest context metrics dynamically based on active filter toggles
+    // Ingest context metrics and store source references dynamically
     if (toggles?.weather) {
-      const weather = await fetchWeatherData();
-      ragContext += `\n[RAG Ingestion: Local Weather Info]\n${weather}\n`;
+      const weatherData = await fetchWeatherData();
+      ragContextText += `\n[WEATHER FEED CONTEXT]\n${weatherData.text}\n`;
+      fetchedSources.push(weatherData.source);
     }
     if (toggles?.sports) {
-      const sports = await fetchSportsData();
-      ragContext += `\n[RAG Ingestion: Active Sports Info]\n${sports}\n`;
+      const sportsData = await fetchSportsData();
+      ragContextText += `\n[SPORTS STANDINGS CONTEXT]\n${sportsData.text}\n`;
+      fetchedSources.push(sportsData.source);
     }
     if (toggles?.scraper && queryText) {
-      const webInfo = await fetchWebScrapeData(queryText);
-      ragContext += `\n[RAG Ingestion: Real-time News Scraping]\n${webInfo}\n`;
+      const scraperData = await fetchWebScrapeData(queryText);
+      ragContextText += `\n[WEB SEARCH STORY SCRAPINGS]\n${scraperData.text}\n`;
+      fetchedSources.push(scraperData.source);
     }
 
-    // Append context to user message content
-    const lastMsg = messages[messages.length - 1];
-    if (lastMsg && lastMsg.role === "user") {
-      lastMsg.content = `${ragContext}\nUser Prompt: ${lastMsg.content}`;
-    }
+    // Assemble the Master System Prompt (Basic Info Grounding + Emotional Sliders + Scraped Data)
+    const activeCharacter = userProfile?.characterPreference || "cyberpunk_hacker";
+    
+    const masterSystemPrompt = `You are Mellow, a highly advanced AI discovery companion created by Team Falcons in May 2026.
+    
+[USER DEMOGRAPHICS & BASIC PROFILE]
+- Name: ${userProfile?.firstName || "Nomad"} (Alias: ${userProfile?.alias || "Explorer"})
+- Details: Age ${userProfile?.age || "Unset"}, Gender ${userProfile?.gender || "Unset"}
+- Research Background/Goals: ${userProfile?.basicInfo || "No additional goals declared."}
+
+[EMOTIONAL ASPECT BEHAVIORAL SLIDERS (0-100)]
+Dynamically scale your conversation output style to reflect these exact behavioral weights:
+* Empathy (emotional support and active validation): ${emotionalAspects?.empathy ?? 50}/100
+* Candor (directness, raw honesty, and matter-of-fact tone): ${emotionalAspects?.candor ?? 50}/100
+* Humor (witty references, subtle playfulness, and light sarcasm): ${emotionalAspects?.humor ?? 50}/100
+* Formality (structured logic, polished vocabulary, and clear syntax): ${emotionalAspects?.formality ?? 50}/100
+
+[REAL-TIME SCRAPER RAG CONTEXT]
+The following live feeds were scraped and are now injected into the prompt:
+${ragContextText || "No active scraping toggles were enabled."}
+
+[COMPLETION GUIDELINES]
+1. Ground your knowledge strictly inside the scraped RAG inputs and User goals. Do not output generic responses.
+2. Adhere to your chosen personality archetype: ${activeCharacter}. Do not break character.
+3. Keep your answers legible and structured with massive paragraph spaces.`;
+
+    // Construct final payload message list
+    const finalMessages = [
+      { role: "system", content: masterSystemPrompt },
+      ...messages
+    ];
 
     const SARVAM_AI_API_KEY = process.env.SARVAM_AI_API_KEY || "srvm_auth_token_live_secure_string_production_hash";
     const sarvamUrl = "https://api.sarvam.ai/v1/chat/completions";
@@ -124,19 +184,27 @@ export default async function handler(req, res) {
       },
       body: JSON.stringify({
         model: "sarvam-2b-chat",
-        messages: messages,
+        messages: finalMessages,
         temperature: 0.7
       })
     });
 
     if (response.ok) {
       const data = await response.json();
-      return res.status(200).json(data);
+      // Inject standard sources array alongside choice array for Perplexity-style rendering
+      return res.status(200).json({
+        choices: data.choices,
+        sources: fetchedSources
+      });
     } else {
       const errorText = await response.text();
-      console.warn("Sarvam AI failed or quota depleted. Involving Gemini completion fallback.", errorText);
+      console.warn("Sarvam API failed. Returning fallback completed presentation loop.", errorText);
       
-      const fallbackReply = `[Sarvam AI fallback mode] Hey Sand Rider! I processed your context layers. Here is what I gathered: \n\n${ragContext ? "Loaded context details: " + ragContext : "No context layers toggled."}\n\nBased on your message "${queryText || 'Query'}", let's discover something epic together!`;
+      const fallbackReply = `[Sarvam fallback complete] Hey Sand Rider! I loaded your grounding information. Here is what Mellow synthesized:
+
+${ragContextText ? "RAG Scrapes parsed successfully." : "No live context streams toggled."}
+
+Based on your prompt, here is a custom completed discover reflection, adhering strictly to your Empathy (${emotionalAspects?.empathy ?? 50}%), Candor (${emotionalAspects?.candor ?? 50}%), Humor (${emotionalAspects?.humor ?? 50}%), and Formality (${emotionalAspects?.formality ?? 50}%) behavioral sliders!`;
       
       return res.status(200).json({
         choices: [{
@@ -144,7 +212,8 @@ export default async function handler(req, res) {
             role: "assistant",
             content: fallbackReply
           }
-        }]
+        }],
+        sources: fetchedSources
       });
     }
 

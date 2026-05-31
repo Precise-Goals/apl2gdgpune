@@ -19,5 +19,5 @@ while ($true) {
     }
 
     Write-Host "Waiting 2 minutes..."
-    Start-Sleep -Seconds 120
+    Start-Sleep -Seconds 20
 }
