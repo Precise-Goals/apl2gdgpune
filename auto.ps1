@@ -18,6 +18,6 @@ while ($true) {
         Write-Host "Error: $_"
     }
 
-    Write-Host "Waiting 5 minutes..."
-    Start-Sleep -Seconds 300
+    Write-Host "Waiting 2 minutes..."
+    Start-Sleep -Seconds 120
 }
