@@ -14,7 +14,9 @@
 </p>
 
 ---
-![alt text](image.png)
+
+![alt text](image-1.png)
+
 ## 🌟 1. Project Overview
 
 **Mellow** represents the next generation of conversational search. While traditional search engines like Perplexity are highly structured but emotionally static, and typical LLM chatbots are warm but prone to hallucinations, Mellow introduces a unified solution: **A Hybrid RAG Conversational Discovery Engine with an Adjustable Emotional Matrix.**
