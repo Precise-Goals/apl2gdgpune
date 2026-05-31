@@ -24,6 +24,7 @@
 Engineered for the **May 2026 RAG Discovery Hackathon** by **Team Falcons**, Mellow leverages a premium, typography-driven sand-paper interface, integrating real-time weather streams, soccer league standings, and HN news scrapers, cryptographically protected under Web3 signature protocols.
 
 ---
+![alt text](image.png)
 
 ## 💡 2. The Vision: Emotional RAG Ingestion
 
