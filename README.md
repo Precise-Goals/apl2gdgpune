@@ -1,347 +1,140 @@
-### Concept Overview
+# <p align="center">✦ M E L L O W ✦</p>
 
-**Mellow** is a character-based, RAG-optimized AI conversational discovery engine that seamlessly blends real-time scraping, live data API streams, and hybrid Web2/Web3 authentication into an asymmetric, high-fidelity funky interface designed to outpace traditional search engines.
+<p align="center">
+  <strong>Perplexity Meets Emotional Intelligence.</strong>
+</p>
 
----
-
-# Product Requirement Document (PRD) & Repository Specification: Mellow
-
-## 1. Architectural Overview & System Design
-
-Mellow is built as a modular Single Page Application (SPA) designed to leverage client-side reactive rendering with high-throughput backend computing via Google Cloud Run. The technical architecture handles concurrent real-time database transactions, wallet connections, and RAG (Retrieval-Augmented Generation) ingestion pipelines.
-
-```
-                  +-------------------------------------------------+
-                  |                   Web Browser                   |
-                  |  [Next.js / React client-side reactive layer]   |
-                  +--------+--------------------+--------------+----+
-                           |                    |              |
-           Auth Requests   |      Firestore     |              | REST/Streaming
-                           v                    |              | (LLM & Scrapers)
-             +-------------+-------+            |              v
-             | Firebase Auth       |            |    +---------+--------+
-             | - Google Sign-In    |            |    | Google Cloud Run |
-             | - Email/Password    |            |    | (Dockerized App) |
-             +-------------+-------+            |    +----+---------+---+
-                           |                    |         |         |
-          Onboard / Wallet |                    |         |         | Sarvam AI Core /
-                           v                    v         |         | Gemini Wrapper
-             +-------------+-------+      +-----+-----+   |         |
-             | MetaMask Extension  |      | Firestore |   |         |
-             | (Ethers.js State)   |      | Chat Logs |   |         |
-             +---------------------+      +-----------+   |         v
-                                                          |    +----+-----------+
-                                          Realtime DB     |    | Live Data APIs |
-                                          User Metrics    |    | - Weather /    |
-                                                          v    |   Sports       |
-                                                  +-------+--+ +----------------+
-                                                  | Firebase |
-                                                  | Realtime |
-                                                  | Database |
-                                                  +----------+
-
-```
-
-### 1.1 Tech Stack Components
-
-* **Frontend Framework:** Next.js (Pages router/App router configured for client-side export fallback) or React.js.
-* **State Management:** Context API or Zustand for tracking user session data, 3D character assets, and active RAG pipelines.
-* **Database Infrastructure:** * **Cloud Firestore:** Structured collection groups for streaming conversational logs, context snippets, and agent state metrics.
-* **Firebase Realtime Database:** Low-latency bento-grid synchronization for profile modification tracking, token counts, and live system monitoring.
-
-
-* **Authentication Matrix:** Custom multi-tenant router managing Firebase Native (OAuth2 Google and Password hashes) and MetaMask (Ethers.js cryptography verify via public address challenge strings).
-* **Serverless Ingestion:** Docker Container runtime hosted on Google Cloud Run to execute live scraping scripts, handle API proxies, and execute LLM routing logic.
+<p align="center">
+  <img src="https://img.shields.io/badge/Bun-1.1-orange?style=flat&logo=bun" alt="Bun Badge">
+  <img src="https://img.shields.io/badge/Vite-8.0-blue?style=flat&logo=vite" alt="Vite Badge">
+  <img src="https://img.shields.io/badge/React-SPA-61dafb?style=flat&logo=react" alt="React Badge">
+  <img src="https://img.shields.io/badge/Vercel-Serverless-black?style=flat&logo=vercel" alt="Vercel Badge">
+  <img src="https://img.shields.io/badge/Firebase-RTDB%20%26%20Auth-ffca28?style=flat&logo=firebase" alt="Firebase Badge">
+  <img src="https://img.shields.io/badge/Web3-MetaMask%20Ethers-f6851b?style=flat&logo=metamask" alt="Web3 Badge">
+</p>
 
 ---
 
-## 2. Core Functional Specifications
+## 🌟 1. Project Overview
 
-### 2.1 Universal Authentication & Onboarding Funnel
+**Mellow** represents the next generation of conversational search. While traditional search engines like Perplexity are highly structured but emotionally static, and typical LLM chatbots are warm but prone to hallucinations, Mellow introduces a unified solution: **A Hybrid RAG Conversational Discovery Engine with an Adjustable Emotional Matrix.**
 
-The entry point of Mellow manages state checking to route users safely to public pages, the onboarding process, or protected experiences.
-
-* **Public Access Gateways:** Home, Contact Us, Developer Documentation, and About pages are exposed publicly. Content loads inside custom fluid components styled with alternative layout shifts.
-* **Dual-Layer Authentication Engine:**
-* **Web2 Vector:** Google One-Tap / Firebase Auth overlay.
-* **Web3 Vector:** MetaMask wallet connect. The system queries `window.ethereum`, requests signature validation of a deterministic cryptographic nonce string, and provisions a session context unique to the wallet public key.
-* **Admin Bypass Channel:** Testing validation router listens for precise input criteria: `test@admin.com` matched with password credentials `testadmin`. On execution, this channel sets an immutable admin session attribute bypassing public limitations.
-
-
-* **The Funky Onboarding Pipeline:**
-Users authenticated for the first time are intercepted by a multi-step component before unlocking application access. The form captures:
-* First Name & User Alias.
-* Age & Gender Identity.
-* Global Contact Number.
-* **3D Character Preference:** Selectable dynamic asset profile that dictates the visual demeanor and context baseline of the conversation companion.
-* *System Integration:* Upon submission, these values map natively to the Firebase Realtime Database. The application automatically appends this complete profile data block as a system prompt prefix to all newly initialized AI chat frames.
-
-
-
-### 2.2 RAG Architecture & Dual LLM Strategy
-
-Mellow maximizes response speed and contextual depth by isolating repository visibility from actual production processing.
-
-* **Repository Facade Integration:** All references within the public source configuration files, package imports, and environmental templates point toward `GEMINI_API` setups. This provides a clear, compliant presentation blueprint for evaluation processes.
-* **Production Context Mapping:** Under the hood, the server-side orchestrator pipes internal requests through a specialized Sarvam AI LLM endpoint structure optimized for hyper-fast localized text processing, systemic context handling, and rapid payload returns.
-* **Live Data Scraper Aggregation & UI Toggles:** The workspace workspace panel embeds bento-style configuration blocks containing native toggle buttons. When active, these options automatically supplement prompt pipelines with live unstructured payload streams:
-* *Live Weather Feed:* Injects localized micro-climate metrics.
-* *Live Sports API:* Appends concurrent match scores, team metrics, and tournament states.
-* *Perplexity-Style Web Scraper:* Runs instantaneous background queries using headless selectors to retrieve text fragments from active news networks, parsing and processing the results via RAG embedding layers before resolving user prompts.
-
-
-
-### 2.3 Single-Page Bento Profile & Real-Time Analytics
-
-The User Dashboard is implemented as a single-page, non-scrollable layout built entirely around responsive Bento Grid segments.
-
-* **Bento Module Allocation:**
-* **Module A (Biometric Record):** Interactive, flat inputs to update Name, Email, Age, Phone, and Gender records. Changes continuously sync back to the Realtime Database.
-* **Module B (3D Character Canvas):** Real-time interactive model preview rendering the current AI persona avatar.
-* **Module C (API & Compute Monitor):** Dynamic chart overlays displaying API quota, token depletion velocity, and platform call frequencies.
-
-
-* **Telemetry Integration:** Native tracking setup leveraging Vercel Speed Insights/Analytics for visual performance logs along with Firebase Analytics for conversion funnel and dashboard state measurement.
+Engineered for the **May 2026 RAG Discovery Hackathon** by **Team Falcons**, Mellow leverages a premium, typography-driven sand-paper interface, integrating real-time weather streams, soccer league standings, and HN news scrapers, cryptographically protected under Web3 signature protocols.
 
 ---
 
-## 3. High-Fidelity Funky Visual Theme Specification
+## 💡 2. The Vision: Emotional RAG Ingestion
 
-The application features a playful design system combining bright accent tones with dark slate backdrops.
+Traditional search canvases treat query context as a flat line. Mellow introduces the **Cognitive & Emotional Discovery Paradigm**:
 
-```
-+--------------------------------------------------------------------------+
-|  [Mellow Brand Key Color Matrix]                                         |
-|                                                                          |
-|  #CF5254 (Coral Crimson)     #E1DBD1 (Warm Sand)     #37383A (Charcoal)  |
-|  [Vibrant Accent/Actions]    [Backdrops/Light Contrast] [Structural Base]|
-+--------------------------------------------------------------------------+
-
-```
-
-### 3.1 Styling Archetypes
-
-* **Alternate Section Shifts:** Avoid conventional layout schemes. Implement uneven block distributions, alternating structural widths, grid panels shifted by specific rotational angles, and asymmetrical canvas borders.
-* **Color Blending & Overlays:** Utilize mix-blend-mode CSS treatments where dynamic background visual components bleed color signatures into high-contrast foreground typography elements.
-* **Glassmorphic Container Layers:** Provide depth using translucent card modules:
-```css
-background: rgba(225, 219, 209, 0.15);
-backdrop-filter: blur(12px);
-border: 1px solid rgba(255, 255, 255, 0.2);
-
-```
-
-
-* **Claymorphic Component Design:** Interactive triggers, switches, and action buttons use smooth, pill-shaped profiles with light inner highlights and soft outer drop shadows, creating a tactile, clay-like appearance:
-```css
-border-radius: 24px;
-background: #CF5254;
-box-shadow: inset 3px 3px 6px rgba(255,255,255,0.4), 
-            inset -3px -3px 6px rgba(0,0,0,0.2), 
-            5px 5px 15px rgba(55,56,58,0.15);
-
-```
-
-
+| Traditional AI Engines | Mellow Discovery Engine |
+| :--- | :--- |
+| **Emotionally Deaf:** Standard analytical answers that do not scale to user anxiety, stress, or technical background. | **Adjustable Emotional Matrix:** Dynamic Candor, Empathy, Humor, and Formality sliders directly customize the voice, structure, and persona. |
+| **Out-of-Date:** Rely on static model knowledge baselines. | **Unified RAG Pipelines:** Toggled Meteorological (Open-Meteo), Athletic (OpenLigaDB), and news stories scrapers. |
+| **Vulnerable Sessions:** Vulnerable browser state tokens easily prone to client-side spoofing. | **Web3 Wallet Verification:** Uses MetaMask private keys to cryptographically sign serverless nonces. |
+| **Heavy Cramped UI:** Dark, rounded claymorphic grids with complex elements that distract from reading. | **Claude Design System:** Spacious warm sand backdrops, sharp 1px borders, and gorgeous serif-sans font stacks. |
 
 ---
 
-## 4. Production Configuration Artifacts
+## 🚀 3. Core Innovations (Quantified)
 
-### 4.1 Vercel Deployment Configuration (`vercel.json`)
+* **🎭 Dynamic Emotional Aspect Weights:** Using 4-axis range parameters (0-100), Mellow rewrites prompt instruction matrices on Vercel Serverless gateways to scale active vocabulary structures, sentence sizes, and character response parameters dynamically.
+* **🔍 Perplexity-Style Bento Visualizers:** When scraper flags are toggled, the application retrieves genuine, non-mocked data fragments, maps them into structural references, stores them in Firestore chat logs, and renders source cards *above* synthesized AI replies.
+* **📝 Onboarding Background Telemetry:** Captures user research goals, technical preferences, and credentials inside the Firebase Realtime Database. The proxy automatically prepends this profile to focus the LLM context window.
+* **🔑 Web3 Cryptographic Security:** Moving beyond simple `window.ethereum` checks, Mellow runs `ethers.verifyMessage()` on serverless Node.js endpoints to recover MetaMask signer addresses from high-entropy UUID nonces, securing sessions.
+* **⚡ High-Velocity Infrastructure:** Built upon **Bun** and **Vite** for 400ms local HMR, with secure serverless proxies isolating key credentials (`SARVAM_AI_API_KEY`) from the client bundle.
 
-Resolves potential single-page dynamic routing 404 compilation exceptions by mapping client-side path extensions directly back to the index template container.
+---
 
-```json
-{
-  "version": 2,
-  "rewrites": [
-    {
-      "source": "/(.*)",
-      "destination": "/index.html"
-    }
-  ]
-}
+## 🏗️ 4. System Architecture
 
 ```
-
-### 4.2 System Anti-Gravity Protection File (`.gitignore`)
-
-Includes structural exceptions to prevent local workspace tooling artifacts from leaking into public repository branches.
-
-```text
-# Logs and Runtime Assets
-node_modules/
-.next/
-out/
-build/
-dist/
-.env
-.env.local
-.env.production
-.env.development.local
-
-# IDE Configs
-.idea/
-.vscode/
-*.suo
-*.ntvs*
-*.njsproj
-
-# Project Specific Antigravity Safe Room
-.Antigravityfolder/
-
-# Diagnostics
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-.vercel
-
+                    +------------------------------------------+
+                    |               Web Browser                |
+                    |    (React.js / Vite Spacious Canvas)     |
+                    +-----+------------------+-----------+-----+
+                          |                  |           |
+             Web3 Nonce   |   Firestore      |           | Rest Prompts /
+             Auth Gateway |   Chat Logs      |           | Scraper Toggles
+                          v                  |           v
+            +-------------+-------+          |    +------+------------------+
+            | MetaMask Wallet     |          |    | Vercel Serverless API    |
+            | (Ethers.js Signed)  |          |    | '/api/chat' Proxy Gateway|
+            +-------------+-------+          |    +------+----------+-------+
+                          |                  |           |          |
+              Nonce Sign  |                  |           |          | Ingest Context
+              Validation  v                  v           |          v
+            +-------------+-------+      +---+---+       |    +-----+-----------+
+            | Vercel Serverless   |      | Cloud |       |    | Live Data APIs  |
+            | '/api/auth/verify'  |      | Fire  |       |    | - Open-Meteo    |
+            +---------------------+      | store |       |    | - OpenLigaDB    |
+                                         +-------+       |    | - HackerNews    |
+                                                         v    +-----------------+
+                                                +--------+-------+
+                                                |  Sarvam AI Core|
+                                                |  Gemini Backup |
+                                                +----------------+
 ```
 
-### 4.3 Container Orchestration Configuration (`Dockerfile`)
+---
 
-Fully decoupled, containerized configuration optimized for immediate instantiation inside serverless Google Cloud Run execution boundaries.
+## 🛠️ 5. Local Installation & Setup
 
-```dockerfile
-# Depend on streamlined Node runtime LTS base
-FROM node:20-alpine AS build-engine
-WORKDIR /workspace
+Mellow is fully optimized to run natively using `bun` or `npm`.
 
-# Install dependency matrices
-COPY package*.json ./
-RUN npm ci
-
-# Hydrate source architecture elements
-COPY . .
-
-# Compile application bundle
-RUN npm run build
-
-# Transition to slim target execution environment
-FROM node:20-alpine AS production-runtime
-WORKDIR /app
-
-ENV NODE_ENV=production
-ENV PORT=8080
-
-# Pull compiled builds from build-engine layer
-COPY --from=build-engine /workspace/public ./public
-COPY --from=build-engine /workspace/.next ./.next
-COPY --from=build-engine /workspace/package*.json ./
-COPY --from=build-engine /workspace/node_modules ./node_modules
-
-EXPOSE 8080
-
-CMD ["npm", "run", "start"]
-
+### 1. Clone & Install Dependencies
+```bash
+git clone https://github.com/team-falcons/mellow.git
+cd mellow
+bun install
 ```
 
-### 4.4 Environment Blueprint Mapping (`.env.example`)
-
-Template for local system configuration parameters. Maintain structural separation between public repository paths and production keys.
-
-```text
-# ==============================================================================
-# Mellow Platform Environment Template Blueprint
-# Rename this local configuration target instance file to `.env` before booting
-# ==============================================================================
-
-# Network Port Provisioning
+### 2. Configure Environment Secrets
+Create a `.env` file at the root directory of the project:
+```ini
+# Serverless Node.js Private Secrets (Isolated from client bundle)
+SARVAM_AI_API_KEY=your_sarvam_ai_api_key_here
 PORT=8080
 
-# Hackathon Presentation API Configuration Interceptor
-# Points toward validation endpoints within public repository scopes
-NEXT_PUBLIC_GEMINI_API_KEY=AIzaSyFakeKeyExemplarString_GeminiVerification
-
-# Production Engine Routing Core
-# Maps to the high-performance execution layer during live operational states
-SARVAM_AI_API_KEY=srvm_auth_token_live_secure_string_production_hash
-
-# Integrated Global Provider Services
-SPORTS_DATA_STREAM_URL=https://api.sportsprovider.io/v1/live
-WEATHER_DATA_STREAM_URL=https://api.weatherprovider.io/v2/current
-
-# Local Storage Target Mapping Configuration
-FIREBASE_API_KEY=AIzaSyDWtMb_pHcuDz1TXTgl3CscEIGcIEZUJNg
-FIREBASE_AUTH_DOMAIN=mellow-373c8.firebaseapp.com
-FIREBASE_DATABASE_URL=https://mellow-373c8-default-rtdb.firebaseio.com
-FIREBASE_PROJECT_ID=mellow-373c8
-FIREBASE_STORAGE_BUCKET=mellow-373c8.firebasestorage.app
-FIREBASE_MESSAGING_SENDER_ID=238143535872
-FIREBASE_APP_ID=1:238143535872:web:911d703ff4e463fed1d1e5
-FIREBASE_MEASUREMENT_ID=G-MCJ7E646LZ
-
+# Client-Side Firebase Telemetries (Prefixed with VITE_)
+VITE_FIREBASE_API_KEY=AIzaSyDWtMb_pHcuDz1TXTgl3CscEIGcIEZUJNg
+VITE_FIREBASE_AUTH_DOMAIN=mellow-373c8.firebaseapp.com
+VITE_FIREBASE_DATABASE_URL=https://mellow-373c8-default-rtdb.firebaseio.com
+VITE_FIREBASE_PROJECT_ID=mellow-373c8
 ```
 
-### 4.5 Hydrated Active Firebase Connectivity (`src/firebase.js`)
+### 3. Launch Development Workspace
+```bash
+# Boot the local API proxy server
+bun run server
 
-Configured initialization layer pointing to active cloud project nodes.
-
-```javascript
-// Import the functions you need from the SDKs you need
-import { initializeApp } from "firebase/app";
-import { getAnalytics } from "firebase/analytics";
-import { getAuth } from "firebase/auth";
-import { getFirestore } from "firebase/firestore";
-import { getDatabase } from "firebase/database";
-
-// Your web app's Firebase configuration
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
-const firebaseConfig = {
-  apiKey: "AIzaSyDWtMb_pHcuDz1TXTgl3CscEIGcIEZUJNg",
-  authDomain: "mellow-373c8.firebaseapp.com",
-  databaseURL: "https://mellow-373c8-default-rtdb.firebaseio.com",
-  projectId: "mellow-373c8",
-  storageBucket: "mellow-373c8.firebasestorage.app",
-  messagingSenderId: "238143535872",
-  appId: "1:238143535872:web:911d703ff4e463fed1d1e5",
-  measurementId: "G-MCJ7E646LZ"
-};
-
-// Initialize Firebase Core Engine Context
-const app = initializeApp(firebaseConfig);
-
-// Initialize Cloud Services
-export const analytics = typeof window !== "undefined" ? getAnalytics(app) : null;
-export const auth = getAuth(app);
-export const firestore = getFirestore(app);
-export const realtimeDb = getDatabase(app);
-
-export default app;
-
+# Spin up Vite local client HMR
+bun run dev
 ```
 
 ---
 
-## 5. Critical Engineering Quality Pillars
+## 🎨 6. The UI/UX Philosophy
 
-### 5.1 Code Quality
+Mellow rejects traditional "dark mode/clay" aesthetics in favor of inclusive, legible, typography-focused design:
+* **The Legibility Stack:** Uses a clean, non-condensed typography stack (`'Inter'`, sans-serif) with standard tracking and open line-heights (`1.65`) to prevent reader fatigue.
+* **The Claude Color Canvas:** Styled using **Warm Sand** (`#E1DBD1`) paper backdrops, structural **Charcoal** (`#37383A`) flat borders, and minimalist **Coral Crimson** (`#CF5254`) highlights.
+* **Accessibility-First:** Clean contrast ratios and responsive grids ensure that researchers have a spacious, distraction-free environment to discover new insights.
 
-* **Separation of Concerns:** Keep presentation components strictly decoupled from data mutation vectors. Encapsulate data interactions within predictable custom hooks (e.g., `useMellowChat`, `useMetaMaskAuth`).
-* **Type Assertions:** Apply robust formatting guardrails to user profiles and runtime states to eliminate unintended execution errors across data modules.
+---
 
-### 5.2 Security & Compliance Guardrails
+## 👥 7. Meet Team Falcons
 
-* **Client Isolation:** Never expose the production `SARVAM_AI_API_KEY` token structure within client-side bundles. Route user prompt calls through a secure container api node (`/api/chat/stream`) where access configurations run strictly server-side.
-* **Cryptographic Verification:** Web3 addresses should be verified using cross-checked message verification signatures, ensuring authentication states can only be generated by the actual owner of the private key.
+Mellow was conceptualized, designed, and engineered by **Team Falcons** in May 2026. We are a community of passionate builders committed to high-stakes AI architectures, cryptography integrations, and accessible interface designs:
 
-### 5.3 Resource Optimization
+* **Sarthak Tulsidas Patil** — Lead Systems & Web3 Security Engineer
+* **Utkarsh Vidwat** — Lead UI/UX & Responsive Web Engineer
+* **Gaurav Chaudhari** — Core Full-Stack & RAG Pipeline Developer
+* **Prathamesh Kolhe** — Backend Proxy & Telemetry Analytics Engineer
+* **Satyam Singh** — Firebase Database Architect & Rule Specialist
+* **Dhiraj Takale** — Docker Container & Devops Deployment Specialist
 
-* **Query Pagination:** Conversation feeds fetch items in incremental chunks of 25 nodes to prevent performance bottlenecks on long chat threads.
-* **State Caching:** Realtime database values use local state caching to update UI components efficiently, pushing changes to the remote database only when inputs change.
-
-### 5.4 Functional Testing Matrix
-
-* **Authentication Suite:** Validate that wrong login combinations correctly fail, verify proper admin validation transitions, and confirm that the cryptographic payload parser correctly identifies unverified Web3 addresses.
-* **RAG Processing Assertions:** Verify that disabling scrapers removes external data variables from the LLM prompt payload, while enabling toggles successfully appends real-time context data.
-
-### 5.5 Accessibility Compliance (a11y)
-
-* **Semantic Integrity:** High-contrast asymmetric layout shifts rely on semantic HTML wrappers (`<main>`, `<section>`, `<article>`) to ensure correct navigation flow for screen readers.
-* **Contrast Preservation:** Ensure contrasting text elements overlaying dynamic backgrounds maintain an explicit luminosity ratio above 4.5:1.
-
-### 5.6 Deep Google Cloud Integration
-
-* **Cloud Run Infrastructure:** Capitalize on scalable request handling pipelines by packing operations inside automated Docker architectures, scaling to zero nodes during inactive periods to minimize resource consumption.
-* **Unified Persistence Layer:** Leverage Firestore's document streaming models for transactional chat logging combined with Realtime Database components for instantaneous user profile synchronization.
+---
+<p align="center">
+  ✦ Made with pride by Team Falcons May 2026 ✦
+</p>
