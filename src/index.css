@@ -4,19 +4,19 @@
   /* Brand Palettes - Warm Paper System */
   --bg-paper: #E1DBD1;
   --text-charcoal: #37383A;
-  --border-charcoal: rgba(55, 56, 58, 0.18);
+  --border-charcoal: rgba(55, 56, 58, 0.22);
   --border-solid: #37383A;
   --accent-coral: #CF5254;
   --accent-hover: #b84143;
   
   /* Harmonious auxiliary sand tokens */
-  --sand-light: #f5f3ef;
-  --sand-dark: #d1c6b5;
+  --sand-light: #f6f3ef;
+  --sand-dark: #d2c5b3;
   --bubble-ai: #eae4d8;
   
-  /* Fonts */
-  --font-serif: 'Instrument Serif', serif;
-  --font-sans: 'Inter', sans-serif;
+  /* Fonts - Non-condensed Legible Font Stack */
+  --font-serif: 'Instrument Serif', Georgia, serif;
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
   
   font-size: 16px;
   background-color: var(--bg-paper);
@@ -32,19 +32,21 @@ body {
   background-color: var(--bg-paper);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  line-height: 1.6;
+  letter-spacing: 0.01em; /* Normal, highly readable tracking */
 }
 
 /* Scrollbar styling */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 8px;
+  height: 8px;
 }
 ::-webkit-scrollbar-track {
   background: var(--bg-paper);
 }
 ::-webkit-scrollbar-thumb {
   background: var(--sand-dark);
-  border-radius: 3px;
+  border-radius: 0px;
 }
 ::-webkit-scrollbar-thumb:hover {
   background: var(--text-charcoal);
@@ -57,14 +59,21 @@ h1, h2, h3, h4 {
   color: var(--text-charcoal);
   margin: 0;
   letter-spacing: -0.01em;
+  line-height: 1.25;
+}
+
+p {
+  line-height: 1.65;
+  margin-top: 0;
+  margin-bottom: 1.25rem;
 }
 
 /* Pristine Flat Container Layouts */
 .flat-card {
   background: var(--sand-light);
   border: 1px solid var(--border-solid);
-  border-radius: 0px; /* Completely flat, sharp angles */
-  padding: 30px;
+  border-radius: 0px; /* Sharp flat outlines */
+  padding: 35px;
   box-sizing: border-box;
 }
 
@@ -80,6 +89,8 @@ h1, h2, h3, h4 {
   width: 100%;
   box-sizing: border-box;
   transition: all 0.2s ease;
+  line-height: 1.5;
+  letter-spacing: 0.01em;
 }
 .flat-input:focus {
   border-color: var(--accent-coral);
@@ -95,7 +106,7 @@ h1, h2, h3, h4 {
   border: 1px solid var(--text-charcoal);
   background: var(--sand-light);
   color: var(--text-charcoal);
-  padding: 10px 20px;
+  padding: 10px 22px;
   cursor: pointer;
   outline: none;
   display: inline-flex;
@@ -103,13 +114,14 @@ h1, h2, h3, h4 {
   justify-content: center;
   gap: 8px;
   transition: all 0.2s ease;
+  letter-spacing: 0.02em;
 }
 .flat-btn:hover:not(:disabled) {
   background: var(--text-charcoal);
   color: var(--bg-paper);
 }
 .flat-btn:disabled {
-  opacity: 0.4;
+  opacity: 0.45;
   cursor: not-allowed;
 }
 
@@ -131,7 +143,7 @@ h1, h2, h3, h4 {
   text-decoration: none;
   font-size: 0.95rem;
   position: relative;
-  padding: 4px 0;
+  padding: 6px 0;
   transition: color 0.2s ease;
 }
 .nav-link:hover {
@@ -146,14 +158,15 @@ h1, h2, h3, h4 {
 .flat-bento {
   display: grid;
   grid-template-columns: repeat(12, 1fr);
-  gap: 20px;
+  gap: 24px;
   width: 100%;
+  box-sizing: border-box;
 }
 
 .bento-tile {
   background: var(--sand-light);
   border: 1px solid var(--border-charcoal);
-  padding: 20px;
+  padding: 24px;
   box-sizing: border-box;
 }
 
@@ -169,7 +182,7 @@ h1, h2, h3, h4 {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 16px 40px;
+  padding: 18px 45px;
   border-bottom: 1px solid var(--border-charcoal);
   background: var(--bg-paper);
 }
@@ -186,7 +199,7 @@ h1, h2, h3, h4 {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 12px;
+  padding: 12px 6px;
   border-bottom: 1px solid var(--border-charcoal);
 }
 
@@ -209,7 +222,7 @@ h1, h2, h3, h4 {
   right: 0;
   bottom: 0;
   background-color: var(--sand-dark);
-  border-radius: 2px; /* Rectangular flat slides */
+  border-radius: 2px;
   border: 1px solid var(--text-charcoal);
   transition: .2s;
 }
@@ -221,7 +234,7 @@ h1, h2, h3, h4 {
   left: 3px;
   bottom: 3px;
   background-color: var(--text-charcoal);
-  border-radius: 0px; /* Sharp rectangular switch knobs */
+  border-radius: 0px;
   transition: .2s;
 }
 input:checked + .flat-slider {
@@ -230,6 +243,30 @@ input:checked + .flat-slider {
 input:checked + .flat-slider:before {
   transform: translateX(20px);
   background-color: var(--sand-light);
+}
+
+/* Perplexity-style Scraped Source Cards layout */
+.perplexity-sources-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 12px;
+  margin-bottom: 14px;
+  margin-top: 4px;
+  width: 100%;
+}
+
+.perplexity-source-card {
+  background: var(--sand-light);
+  border: 1px solid var(--border-charcoal);
+  padding: 10px 14px;
+  text-align: left;
+  font-size: 0.8rem;
+  line-height: 1.4;
+  box-sizing: border-box;
+  transition: border-color 0.2s ease;
+}
+.perplexity-source-card:hover {
+  border-color: var(--accent-coral);
 }
 
 @media (max-width: 1024px) {

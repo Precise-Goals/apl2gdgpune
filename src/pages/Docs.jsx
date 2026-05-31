@@ -1,93 +1,106 @@
 export default function Docs() {
   return (
-    <div style={{ maxWidth: "1000px", margin: "0 auto", padding: "60px 20px", display: "flex", gap: "40px", boxSizing: "border-box" }}>
+    <div style={{ maxWidth: "1200px", margin: "0 auto", padding: "80px 30px", display: "flex", gap: "60px", boxSizing: "border-box" }}>
       
-      {/* Sidebar index */}
-      <nav style={{ width: "200px", position: "sticky", top: "100px", height: "fit-content", textAlign: "left", display: "flex", flexDirection: "column", gap: "12px", borderRight: "1px solid var(--border-charcoal)", paddingRight: "20px" }}>
-        <h4 style={{ fontSize: "0.85rem", textTransform: "uppercase", letterSpacing: "0.05em", color: "var(--accent-coral)" }}>Documentation</h4>
-        <a href="#env-setup" style={{ fontSize: "0.9rem", color: "var(--text-charcoal)", textDecoration: "none", opacity: 0.8 }}>1. Env Configurations</a>
-        <a href="#web3-auth" style={{ fontSize: "0.9rem", color: "var(--text-charcoal)", textDecoration: "none", opacity: 0.8 }}>2. Web3 Nonce signed</a>
-        <a href="#rag-scrapers" style={{ fontSize: "0.9rem", color: "var(--text-charcoal)", textDecoration: "none", opacity: 0.8 }}>3. RAG Proxy pipelines</a>
-        <a href="#docker-verc" style={{ fontSize: "0.9rem", color: "var(--text-charcoal)", textDecoration: "none", opacity: 0.8 }}>4. Container build</a>
+      {/* Stripe-style Sticky Navigation Sidebar */}
+      <nav style={{ width: "260px", position: "sticky", top: "100px", height: "fit-content", textAlign: "left", display: "flex", flexDirection: "column", gap: "16px", borderRight: "1px solid var(--border-charcoal)", paddingRight: "30px", flexShrink: 0 }}>
+        <h4 style={{ fontSize: "0.85rem", textTransform: "uppercase", letterSpacing: "0.08em", color: "var(--accent-coral)", fontWeight: "700" }}>System Specifications</h4>
+        <a href="#firebase-setup" style={{ fontSize: "0.95rem", color: "var(--text-charcoal)", textDecoration: "none", opacity: 0.85, fontWeight: "500" }}>1. Firebase Credentials</a>
+        <a href="#web3-spec" style={{ fontSize: "0.95rem", color: "var(--text-charcoal)", textDecoration: "none", opacity: 0.85, fontWeight: "500" }}>2. Cryptographic Web3</a>
+        <a href="#master-prompt" style={{ fontSize: "0.95rem", color: "var(--text-charcoal)", textDecoration: "none", opacity: 0.85, fontWeight: "500" }}>3. Master System Prompt</a>
+        <a href="#perplexity-rag" style={{ fontSize: "0.95rem", color: "var(--text-charcoal)", textDecoration: "none", opacity: 0.85, fontWeight: "500" }}>4. Perplexity RAG Pipelines</a>
       </nav>
 
-      {/* Docs Body */}
+      {/* Spacious Technical Content Canvas */}
       <main style={{ flex: 1, textAlign: "left" }}>
         
         {/* Section 1 */}
-        <section id="env-setup" style={{ marginBottom: "60px" }}>
-          <h2 style={{ fontSize: "2.4rem", fontFamily: "var(--font-serif)", marginBottom: "15px" }}>1. Environment Configuration</h2>
-          <p style={{ fontSize: "0.95rem", lineHeight: "1.6", opacity: 0.85, marginBottom: "20px" }}>
-            Mellow splits variables strictly between server-side keys and client-side configurations. Create a secure `.env` file at the project root to feed the backend and Firebase instances.
+        <section id="firebase-setup" style={{ marginBottom: "80px" }}>
+          <h2 style={{ fontSize: "2.8rem", fontFamily: "var(--font-serif)", marginBottom: "20px" }}>1. Firebase Realtime Database & Auth Configuration</h2>
+          <p style={{ fontSize: "1rem", lineHeight: "1.7", opacity: 0.85, marginBottom: "20px" }}>
+            Mellow relies on **Firebase Realtime Database** to persist telemetry callers metric limits and **Firestore** to manage cursor-paginated chat logs histories. To configure credentials in local development, initialize your `.env` variables at the workspace root directory:
           </p>
-          <div style={{ border: "1px solid var(--border-solid)", background: "var(--sand-light)", padding: "20px", fontSize: "0.85rem", overflowX: "auto" }}>
+          <div style={{ border: "1px solid var(--text-charcoal)", background: "var(--sand-light)", padding: "24px", fontSize: "0.9rem", overflowX: "auto", marginBottom: "25px" }}>
             <pre style={{ margin: 0, fontFamily: "monospace" }}>
-{`# Server-Side Private Secrets (Isolated from Client Bundle)
-SARVAM_AI_API_KEY=your_sarvam_ai_api_key_here
-PORT=8080
-
-# Client-Side Firebase Configurations (Read via import.meta.env.VITE_)
+{`# Client-Side Env variables (Prefix strictly with VITE_)
 VITE_FIREBASE_API_KEY=AIzaSyDWtMb_pHcuDz1TXTgl3CscEIGcIEZUJNg
 VITE_FIREBASE_AUTH_DOMAIN=mellow-373c8.firebaseapp.com
 VITE_FIREBASE_DATABASE_URL=https://mellow-373c8-default-rtdb.firebaseio.com
-VITE_FIREBASE_PROJECT_ID=mellow-373c8`}
+VITE_FIREBASE_PROJECT_ID=mellow-373c8
+VITE_FIREBASE_STORAGE_BUCKET=mellow-373c8.appspot.com
+VITE_FIREBASE_MESSAGING_SENDER_ID=9301290382
+VITE_FIREBASE_APP_ID=1:9301290382:web:a2bc3d4e5f6g7h8i`}
+            </pre>
+          </div>
+          <h4 style={{ fontSize: "1.2rem", fontFamily: "var(--font-serif)", marginBottom: "10px" }}>Securing Realtime Database Rules</h4>
+          <p style={{ fontSize: "0.95rem", lineHeight: "1.6", opacity: 0.8 }}>
+            Ensure your Realtime Database rules protect user profiles while granting telemetry access to verified owners:
+          </p>
+          <div style={{ border: "1px solid var(--border-charcoal)", background: "var(--sand-light)", padding: "16px", fontSize: "0.85rem", overflowX: "auto" }}>
+            <pre style={{ margin: 0, fontFamily: "monospace" }}>
+{`{
+  "rules": {
+    "users": {
+      "$uid": {
+        ".read": "auth != null && auth.uid == $uid",
+        ".write": "auth != null && auth.uid == $uid"
+      }
+    }
+  }
+}`}
             </pre>
           </div>
         </section>
 
         {/* Section 2 */}
-        <section id="web3-auth" style={{ marginBottom: "60px", borderTop: "1px solid var(--border-charcoal)", paddingTop: "40px" }}>
-          <h2 style={{ fontSize: "2.4rem", fontFamily: "var(--font-serif)", marginBottom: "15px" }}>2. Cryptographic Web3 Nonce Verification</h2>
-          <p style={{ fontSize: "0.95rem", lineHeight: "1.6", opacity: 0.85, marginBottom: "20px" }}>
-            To protect access securely without trusting vulnerable local variables, Mellow uses a 3-step cryptographically signed nonce challenge using Ethers.js:
+        <section id="web3-spec" style={{ marginBottom: "80px", borderTop: "1px solid var(--border-charcoal)", paddingTop: "50px" }}>
+          <h2 style={{ fontSize: "2.8rem", fontFamily: "var(--font-serif)", marginBottom: "20px" }}>2. MetaMask Nonce Cryptographic Challenge</h2>
+          <p style={{ fontSize: "1rem", lineHeight: "1.7", opacity: 0.85, marginBottom: "20px" }}>
+            Mellow employs MetaMask cryptographic challenge signing to confirm Web3 identities securely on Vercel Serverless gateways:
           </p>
-          <ol style={{ paddingLeft: "20px", display: "flex", flexDirection: "column", gap: "10px", fontSize: "0.9rem", lineHeight: "1.6", opacity: 0.9 }}>
+          <ol style={{ paddingLeft: "20px", display: "flex", flexDirection: "column", gap: "15px", fontSize: "0.95rem", lineHeight: "1.7" }}>
             <li>
-              <strong>Challenge Generation:</strong> The client sends the wallet address to `/api/auth/nonce`. The secure server responds with a unique, high-entropy UUID nonce challenge.
+              <strong>Address Challenge:</strong> The frontend client triggers `fetch('/api/auth/nonce?address=' + walletAddress)`. The serverless function generates a UUID challenge nonce and stores it in the global lambda container memory map.
             </li>
             <li>
-              <strong>Signature Request:</strong> The client triggers the MetaMask provider using `ethers.BrowserProvider`, asking the user to sign the specific nonce.
+              <strong>Wallet Sign request:</strong> The client uses Ethers.js to request a signature:
+              <div style={{ border: "1px solid var(--border-charcoal)", background: "var(--sand-light)", padding: "14px", fontSize: "0.85rem", margin: "10px 0", overflowX: "auto" }}>
+                <pre style={{ margin: 0, fontFamily: "monospace" }}>
+{`const signature = await provider.getSigner().signMessage(challengeNonce);`}
+                </pre>
+              </div>
             </li>
             <li>
-              <strong>Server-Side Verification:</strong> The signature is POSTed back to `/api/auth/verify`. The server runs `ethers.verifyMessage(nonce, signature)` to resolve the active wallet address. If verified successfully, access is granted.
+              <strong>Cryptographic Verification:</strong> The signature is POSTed back to `/api/auth/verify`. The Vercel serverless lambda recovers the active signer using `ethers.verifyMessage(challenge, signature)` and compares it against the declared wallet.
             </li>
           </ol>
         </section>
 
         {/* Section 3 */}
-        <section id="rag-scrapers" style={{ marginBottom: "60px", borderTop: "1px solid var(--border-charcoal)", paddingTop: "40px" }}>
-          <h2 style={{ fontSize: "2.4rem", fontFamily: "var(--font-serif)", marginBottom: "15px" }}>3. RAG Proxy Scraper pipelines</h2>
-          <p style={{ fontSize: "0.95rem", lineHeight: "1.6", opacity: 0.85, marginBottom: "20px" }}>
-            All scraping and chat transactions route through our native Bun proxy server, protecting external API endpoints from CORS restrictions and secret exposures.
+        <section id="master-prompt" style={{ marginBottom: "80px", borderTop: "1px solid var(--border-charcoal)", paddingTop: "50px" }}>
+          <h2 style={{ fontSize: "2.8rem", fontFamily: "var(--font-serif)", marginBottom: "20px" }}>3. Master System Prompt Engineering</h2>
+          <p style={{ fontSize: "1rem", lineHeight: "1.7", opacity: 0.85, marginBottom: "20px" }}>
+            Mellow compiles a massive system instruction payload on the backend during every conversational prompt query. It incorporates:
           </p>
-          <ul style={{ paddingLeft: "20px", display: "flex", flexDirection: "column", gap: "10px", fontSize: "0.9rem", lineHeight: "1.6", opacity: 0.9 }}>
+          <ul style={{ paddingLeft: "20px", display: "flex", flexDirection: "column", gap: "15px", fontSize: "0.95rem", lineHeight: "1.7" }}>
             <li>
-              <strong>Live Weather:</strong> Directly requests live temperatures from the Open-Meteo coordinate stream using relative prompts.
+              <strong>Onboarding Background Context:</strong> The user's technical profile details (from Firebase RTDB) are dynamically prepended to focus conversations directly on the user's specific goals.
             </li>
             <li>
-              <strong>Sports Matches:</strong> Injects latest Bundesliga championship standings from OpenLigaDB.
+              <strong>Emotional Aspect Weights:</strong> Behavioral parameters (Candor, Empathy, Humor, Formality) dynamically scale the AI companion's vocabulary, sentence structures, and active responses.
             </li>
             <li>
-              <strong>HN Web Scraper:</strong> Employs Algolia HN API indices to crawl related news updates in response to developer query cues.
+              <strong>Live Injected RAG Context:</strong> Real meteorological streams and football tournament matches are formatted directly in system blocks to ground completions with verified, real-world data points.
             </li>
           </ul>
         </section>
 
         {/* Section 4 */}
-        <section id="docker-verc" style={{ marginBottom: "40px", borderTop: "1px solid var(--border-charcoal)", paddingTop: "40px" }}>
-          <h2 style={{ fontSize: "2.4rem", fontFamily: "var(--font-serif)", marginBottom: "15px" }}>4. Containerized Deployments</h2>
-          <p style={{ fontSize: "0.95rem", lineHeight: "1.6", opacity: 0.85, marginBottom: "20px" }}>
-            Deploy Mellow on Cloud Run or Vercel using minimal resources:
+        <section id="perplexity-rag" style={{ marginBottom: "40px", borderTop: "1px solid var(--border-charcoal)", paddingTop: "50px" }}>
+          <h2 style={{ fontSize: "2.8rem", fontFamily: "var(--font-serif)", marginBottom: "20px" }}>4. Perplexity RAG Pipelines</h2>
+          <p style={{ fontSize: "1rem", lineHeight: "1.7", opacity: 0.85 }}>
+            Our Perplexity-style engine automatically displays the raw, scraped data sources inside 1px solid bordered Bento-Cards *above* the AI's synthesized responses. When RAG filters are enabled, the client maps all returned telemetry source keys dynamically, giving users complete transparency over retrieved information.
           </p>
-          <div style={{ border: "1px solid var(--border-solid)", background: "var(--sand-light)", padding: "16px", fontSize: "0.85rem", overflowX: "auto" }}>
-            <pre style={{ margin: 0, fontFamily: "monospace" }}>
-{`# Build the multi-stage Bun container
-docker build -t mellow-node .
-
-# Spin up server context (Servicing on port 8080)
-docker run -p 8080:8080 mellow-node`}
-            </pre>
-          </div>
         </section>
 
       </main>
