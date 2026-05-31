@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
+import { BrowserRouter, Routes, Route, NavLink, Navigate, Link } from "react-router-dom";
 import { useWeb3Auth } from "./hooks/useWeb3Auth";
 import { useBentoProfile } from "./hooks/useBentoProfile";
 import { useMellowChat } from "./hooks/useMellowChat";
-import { auth, firestore } from "./firebase";
+import { auth } from "./firebase";
 import { 
   signInWithEmailAndPassword, 
   signInWithPopup, 
@@ -12,12 +13,14 @@ import {
   createUserWithEmailAndPassword
 } from "firebase/auth";
 
-import BentoDashboard from "./components/BentoDashboard";
-import ChatInterface from "./components/ChatInterface";
-import OnboardingForm from "./components/OnboardingForm";
+// Page Components
+import Home from "./pages/Home";
+import Agent from "./pages/Agent";
+import About from "./pages/About";
+import Docs from "./pages/Docs";
+import Contact from "./pages/Contact";
 
 export default function App() {
-  // 1. Core Authentication Hooks and States
   const { 
     account: web3Account, 
     loading: web3Loading, 
@@ -30,22 +33,21 @@ export default function App() {
   const [isAdminBypass, setIsAdminBypass] = useState(false);
   const [authLoading, setAuthLoading] = useState(true);
 
-  // Web2 Form Inputs
+  // Authentication Popup Overlay States
+  const [showAuthModal, setShowAuthModal] = useState(false);
   const [emailInput, setEmailInput] = useState("");
   const [passwordInput, setPasswordInput] = useState("");
   const [isRegistering, setIsRegistering] = useState(false);
   const [authError, setAuthError] = useState(null);
 
-  // RAG Toggles State
+  // RAG Scraper State Toggles
   const [ragToggles, setRagToggles] = useState({
     weather: false,
     sports: false,
     scraper: false
   });
 
-  // 2. Synchronize active Authentication Vector
   useEffect(() => {
-    // Check for cached Admin Bypass session
     const adminSession = localStorage.getItem("mellow_admin_session");
     if (adminSession === "true") {
       setIsAdminBypass(true);
@@ -53,7 +55,6 @@ export default function App() {
       return;
     }
 
-    // Subscribe to Firebase Auth changes
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (user) {
         setFirebaseUser(user);
@@ -66,7 +67,7 @@ export default function App() {
     return () => unsubscribe();
   }, []);
 
-  // Determine active unique user session UID
+  // Compute active user sessions
   let activeUid = null;
   let activeEmail = null;
 
@@ -81,7 +82,7 @@ export default function App() {
     activeEmail = `${web3Account.substring(0, 6)}...${web3Account.substring(38)}@metamask.eth`;
   }
 
-  // 3. Low-Latency Profile Data Sync (Realtime DB)
+  // Bind Realtime DB profiles
   const { 
     profile, 
     loading: profileLoading, 
@@ -89,7 +90,7 @@ export default function App() {
     logComputeUsage 
   } = useBentoProfile(activeUid);
 
-  // 4. Paginated Firestore Chat Logs Hook
+  // Bind Firestore Chat Logs
   const { 
     messages, 
     loading: chatLoading, 
@@ -99,15 +100,14 @@ export default function App() {
     appendMessage 
   } = useMellowChat(activeUid);
 
-  // 5. Auth Action handlers
   const handleEmailAuth = async (e) => {
     e.preventDefault();
     setAuthError(null);
 
-    // Strict Admin Bypass Gateway check (ZERO TOLERANCE bypass exception)
     if (emailInput === "test@admin.com" && passwordInput === "testadmin") {
       localStorage.setItem("mellow_admin_session", "true");
       setIsAdminBypass(true);
+      setShowAuthModal(false);
       return;
     }
 
@@ -117,8 +117,8 @@ export default function App() {
       } else {
         await signInWithEmailAndPassword(auth, emailInput, passwordInput);
       }
+      setShowAuthModal(false);
     } catch (err) {
-      console.error("Email auth error:", err.message);
       setAuthError(err.message.replace("Firebase:", ""));
     }
   };
@@ -128,9 +128,9 @@ export default function App() {
     try {
       const provider = new GoogleAuthProvider();
       await signInWithPopup(auth, provider);
+      setShowAuthModal(false);
     } catch (err) {
-      console.error("Google Auth error:", err.message);
-      setAuthError("Google authentication interrupted.");
+      setAuthError("Google Login Interrupted.");
     }
   };
 
@@ -144,21 +144,17 @@ export default function App() {
       } else {
         await signOut(auth);
       }
-      // Reload window to reset chat/profile contexts cleanly
-      window.location.reload();
+      window.location.href = "/";
     } catch (err) {
-      console.error("Logout Error:", err);
+      console.error(err);
     }
   };
 
   const handleSendMessage = async (role, content) => {
-    // Append the message log directly in firestore
     const savedMsg = await appendMessage(role, content, profile.characterPreference);
-    
-    // If it's the user sending a message, log compute quota and API call frequency
     if (role === "user") {
-      const tokensGenerated = Math.floor(Math.random() * 45) + 30; // simulate actual token payload size
-      await logComputeUsage(tokensGenerated);
+      const tokensConsumpted = Math.floor(Math.random() * 45) + 30;
+      await logComputeUsage(tokensConsumpted);
     }
     return savedMsg;
   };
@@ -170,194 +166,253 @@ export default function App() {
     }));
   };
 
-  const handleOnboardingComplete = () => {
-    // Force profiles reload
-    updateProfileFields({ onboardingComplete: true });
-  };
-
-  // Determine if Onboarding Form Interception is required
-  const needsOnboarding = activeUid && !profileLoading && !profile.firstName;
-
   if (authLoading) {
     return (
-      <div className="layout-wrapper" style={{ justifyContent: "center", alignItems: "center" }}>
-        <div className="floating-asset" style={{ fontSize: "3rem" }}>⚡</div>
-        <h2 style={{ marginTop: "15px" }}>Syncing Mellow Portal Matrix...</h2>
+      <div style={{ display: "flex", flexDirection: "column", height: "100vh", justifyContent: "center", alignItems: "center", backgroundColor: "#E1DBD1" }}>
+        <div style={{ fontSize: "2rem", color: "#37383A", animation: "spin 2s linear infinite" }}>✦</div>
+        <h2 style={{ marginTop: "15px", fontFamily: "var(--font-serif)", fontSize: "1.8rem" }}>Synchronizing Portal Matrix...</h2>
       </div>
     );
   }
 
+  // Authenticated State check helper
+  const isAuthenticated = !!activeUid;
+
   return (
-    <div className="layout-wrapper">
-      {/* Header section (Asymmetric brand overlay) */}
-      <header style={{ 
-        display: "flex", 
-        alignItems: "center", 
-        justifyContent: "space-between", 
-        padding: "20px 40px", 
-        borderBottom: "1px solid rgba(225, 219, 209, 0.12)",
-        background: "rgba(26, 27, 28, 0.3)" 
-      }}>
-        <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-          <div className="skewed-tag" style={{ fontSize: "1.2rem", letterSpacing: "1px" }}>MELLOW</div>
-          <span style={{ fontSize: "0.8rem", color: "var(--sand-dark)", display: "none" }}>AI Discovery Engine</span>
+    <BrowserRouter>
+      <div className="app-container">
+        
+        {/* Dynamic Claude-style header */}
+        <header className="header-nav">
+          <div style={{ display: "flex", alignItems: "center", gap: "25px" }}>
+            
+            {/* Top-Left: Get Started link if logged out, Profile Icon if logged in */}
+            <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+              {!isAuthenticated ? (
+                <button 
+                  type="button"
+                  onClick={() => {
+                    setAuthError(null);
+                    setShowAuthModal(true);
+                  }}
+                  className="flat-btn"
+                  style={{ border: "1px solid var(--accent-coral)", color: "var(--accent-coral)", padding: "6px 14px", fontSize: "0.8rem", textTransform: "uppercase", letterSpacing: "0.05em", fontWeight: "600" }}
+                >
+                  Get Started ✦
+                </button>
+              ) : (
+                <Link to="/agent" title={`Active Profile: ${profile.alias || 'Nomad'}`}>
+                  <div style={{
+                    width: "32px",
+                    height: "32px",
+                    borderRadius: "50%",
+                    border: "1px solid var(--text-charcoal)",
+                    background: "var(--sand-dark)",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    fontSize: "1.1rem",
+                    cursor: "pointer"
+                  }}>
+                    {profile.characterPreference === "cyberpunk_hacker" ? "🤖" :
+                     profile.characterPreference === "synthwave_samurai" ? "👺" :
+                     profile.characterPreference === "solarpunk_mystic" ? "👽" :
+                     profile.characterPreference === "retro_gamer" ? "👾" : "👤"}
+                  </div>
+                </Link>
+              )}
+            </div>
+
+            {/* Logo Signature */}
+            <Link to="/" style={{ display: "flex", alignItems: "center", gap: "6px", textDecoration: "none" }}>
+              <span style={{ color: "var(--accent-coral)", fontSize: "1.4rem" }}>✦</span>
+              <span style={{ fontFamily: "var(--font-serif)", fontSize: "1.3rem", fontWeight: "500", color: "var(--text-charcoal)", letterSpacing: "-0.02em" }}>Mellow</span>
+            </Link>
+          </div>
+
+          {/* Clean Flat Navigation list */}
+          <nav style={{ display: "flex", alignItems: "center", gap: "25px" }}>
+            <NavLink to="/" className={({ isActive }) => `nav-link ${isActive ? "active" : ""}`}>Home</NavLink>
+            {isAuthenticated && (
+              <NavLink to="/agent" className={({ isActive }) => `nav-link ${isActive ? "active" : ""}`}>Agent workspace</NavLink>
+            )}
+            <NavLink to="/about" className={({ isActive }) => `nav-link ${isActive ? "active" : ""}`}>About</NavLink>
+            <NavLink to="/docs" className={({ isActive }) => `nav-link ${isActive ? "active" : ""}`}>Docs</NavLink>
+            <NavLink to="/contact" className={({ isActive }) => `nav-link ${isActive ? "active" : ""}`}>Contact</NavLink>
+            
+            {isAuthenticated && (
+              <button 
+                type="button"
+                onClick={handleLogout} 
+                className="flat-btn" 
+                style={{ padding: "5px 12px", fontSize: "0.75rem", textTransform: "uppercase", marginLeft: "10px" }}
+              >
+                Sign Out
+              </button>
+            )}
+          </nav>
+        </header>
+
+        {/* Unified SPA Page Routing Matrix */}
+        <div className="main-routed-view">
+          <Routes>
+            <Route path="/" element={
+              <Home 
+                isAuthenticated={isAuthenticated} 
+                onOpenAuth={() => setShowAuthModal(true)} 
+              />
+            } />
+            <Route path="/agent" element={
+              isAuthenticated ? (
+                <Agent 
+                  userId={activeUid}
+                  profile={profile}
+                  updateProfile={updateProfileFields}
+                  messages={messages}
+                  chatLoading={chatLoading}
+                  loadingMore={loadingMore}
+                  hasMore={hasMore}
+                  fetchMoreMessages={fetchMoreMessages}
+                  sendMessage={handleSendMessage}
+                  ragToggles={ragToggles}
+                  onToggleRag={handleToggleRag}
+                />
+              ) : (
+                <Navigate to="/" replace />
+              )
+            } />
+            <Route path="/about" element={<About />} />
+            <Route path="/docs" element={<Docs />} />
+            <Route path="/contact" element={<Contact />} />
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
         </div>
 
-        {activeUid && (
-          <div style={{ display: "flex", alignItems: "center", gap: "15px" }}>
-            <span style={{ fontSize: "0.85rem", color: "var(--sand-dark)" }}>
-              Identity: <strong style={{ color: "var(--coral-crimson)" }}>{activeEmail}</strong>
-            </span>
-            <button type="button" onClick={handleLogout} className="clay-pill" style={{ padding: "8px 18px", fontSize: "0.8rem", background: "var(--slate-deep)" }}>
-              Logout 🔒
-            </button>
-          </div>
-        )}
-      </header>
+        {/* Minimalist Footer */}
+        <footer style={{ padding: "20px 40px", borderTop: "1px solid var(--border-charcoal)", background: "var(--bg-paper)", fontSize: "0.8rem", color: "var(--text-charcoal)", textAlign: "center", display: "flex", justifyContent: "space-between", flexWrap: "wrap", gap: "10px" }}>
+          <span>© 2026 Mellow Conversational Engine. Made by Team Falcons May 2026.</span>
+          <span style={{ opacity: 0.6 }}>High-Fidelity RAG-Optimized Research System</span>
+        </footer>
 
-      <main className="main-content">
-        {!activeUid ? (
-          /* =========================================================
-             1. UNAUTHENTICATED: Public Portal and Multi-Auth Gates
-             ========================================================= */
-          <div className="bento-grid" style={{ maxWidth: "1000px" }}>
-            {/* Asymmetric Marketing Tile */}
-            <section className="glass-panel asymmetric-tile" style={{ gridColumn: "span 7", padding: "40px", textAlign: "left", display: "flex", flexDirection: "column", justifyContent: "center" }}>
-              <div className="skewed-tag" style={{ marginBottom: "15px" }}>V1.0 LIVE</div>
-              <h1 style={{ fontSize: "3rem", lineHeight: "1.1", marginBottom: "20px" }}>
-                Discover beyond traditional search query sheets.
-              </h1>
-              <p style={{ color: "var(--sand-dark)", fontSize: "1.1rem", lineHeight: "1.5" }}>
-                Mellow integrates real-time meteorological indicators, tournament standings, and dynamic news aggregators directly into local AI models via a tactile, asymmetric claymorphic design interface.
-              </p>
-              
-              <div style={{ display: "flex", gap: "15px", marginTop: "30px", fontSize: "0.85rem", color: "var(--sand-dark)" }}>
-                <span>🎯 No Mock Data</span>
-                <span>•</span>
-                <span>🔒 Cryptographic Web3 Nonce Verified</span>
-                <span>•</span>
-                <span>⚡ Bun Runtime</span>
+        {/* =========================================================
+           Unified Flat Authentication Popup (Claude Aesthetic modal)
+           ========================================================= */}
+        {showAuthModal && (
+          <div style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            background: "rgba(55, 56, 58, 0.4)",
+            backdropFilter: "blur(4px)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            zIndex: 999
+          }}>
+            <div className="flat-card" style={{ maxWidth: "420px", width: "100%", padding: "40px 30px", position: "relative" }}>
+              {/* Close Button */}
+              <button 
+                type="button"
+                onClick={() => setShowAuthModal(false)}
+                style={{ position: "absolute", top: "15px", right: "20px", background: "none", border: "none", fontSize: "1.5rem", cursor: "pointer", color: "var(--text-charcoal)" }}
+              >
+                ×
+              </button>
+
+              <div style={{ display: "flex", justifyContent: "center", gap: "6px", color: "var(--accent-coral)", fontSize: "1.5rem", marginBottom: "10px" }}>
+                <span>✦</span>
               </div>
-            </section>
-
-            {/* Authentication Vector Gateways */}
-            <section className="glass-panel" style={{ gridColumn: "span 5", padding: "30px" }}>
-              <h3>Authenticate Gateway</h3>
-              <p style={{ fontSize: "0.8rem", color: "var(--sand-dark)", marginBottom: "25px" }}>
-                Access Mellow RAG frameworks instantly.
+              <h2 style={{ fontSize: "2rem", marginBottom: "8px", textAlign: "center" }}>Join the Mellow Node</h2>
+              <p style={{ fontSize: "0.85rem", color: "var(--text-charcoal)", opacity: 0.8, marginBottom: "25px", textAlign: "center" }}>
+                Select an authentication gateway to open your workspace.
               </p>
 
               {authError && (
-                <div style={{ background: "rgba(207, 82, 84, 0.15)", border: "1px solid var(--coral-crimson)", color: "var(--sand-light)", padding: "10px", borderRadius: "10px", fontSize: "0.8rem", marginBottom: "15px" }}>
+                <div style={{ border: "1px solid var(--accent-coral)", padding: "10px", color: "var(--accent-coral)", fontSize: "0.8rem", marginBottom: "15px", borderRadius: "2px" }}>
                   {authError}
                 </div>
               )}
 
               {web3Error && (
-                <div style={{ background: "rgba(207, 82, 84, 0.15)", border: "1px solid var(--coral-crimson)", color: "var(--sand-light)", padding: "10px", borderRadius: "10px", fontSize: "0.8rem", marginBottom: "15px" }}>
+                <div style={{ border: "1px solid var(--accent-coral)", padding: "10px", color: "var(--accent-coral)", fontSize: "0.8rem", marginBottom: "15px", borderRadius: "2px" }}>
                   {web3Error}
                 </div>
               )}
 
-              {/* Web3 MetaMask Trigger */}
+              {/* Web3 MetaMask connect */}
               <button 
                 type="button"
-                onClick={connectWallet} 
+                onClick={async () => {
+                  try {
+                    await connectWallet();
+                    setShowAuthModal(false);
+                  } catch {}
+                }} 
                 disabled={web3Loading}
-                className="clay-pill" 
-                style={{ width: "100%", background: "#f59e0b", color: "#1a1b1c", marginBottom: "15px" }}
+                className="flat-btn flat-btn-primary" 
+                style={{ width: "100%", justifyContent: "center", marginBottom: "12px", background: "#E89B4A", border: "1px solid #E89B4A" }}
               >
-                {web3Loading ? "Verifying Signature..." : "Connect MetaMask Wallet 🦊"}
+                {web3Loading ? "Executing Challenge..." : "Connect MetaMask Wallet 🦊"}
               </button>
 
-              <div style={{ margin: "15px 0", color: "var(--sand-dark)", fontSize: "0.8rem" }}>— OR —</div>
+              <div style={{ display: "flex", alignItems: "center", gap: "10px", margin: "15px 0", color: "var(--text-charcoal)", opacity: 0.6, fontSize: "0.8rem" }}>
+                <div style={{ flex: 1, height: "1px", background: "var(--border-charcoal)" }}></div>
+                <span>OR</span>
+                <div style={{ flex: 1, height: "1px", background: "var(--border-charcoal)" }}></div>
+              </div>
 
-              {/* Web2 Form Integration */}
+              {/* Web2 Form access */}
               <form onSubmit={handleEmailAuth} style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
                 <input 
                   type="email" 
-                  className="clay-input" 
-                  placeholder="Email or test@admin.com" 
+                  className="flat-input" 
+                  placeholder="Email account or test@admin.com" 
                   value={emailInput}
                   onChange={(e) => setEmailInput(e.target.value)}
                   required 
                 />
                 <input 
                   type="password" 
-                  className="clay-input" 
+                  className="flat-input" 
                   placeholder="Password or testadmin" 
                   value={passwordInput}
                   onChange={(e) => setPasswordInput(e.target.value)}
                   required 
                 />
-                
-                <button type="submit" className="clay-pill" style={{ width: "100%", marginTop: "5px" }}>
-                  {isRegistering ? "Register Account" : "Access Engine 🚀"}
+                <button type="submit" className="flat-btn flat-btn-primary" style={{ width: "100%", justifyContent: "center", marginTop: "5px" }}>
+                  {isRegistering ? "Register Account" : "Access Workspace"}
                 </button>
               </form>
 
-              {/* Google OAuth Access */}
+              {/* Google popup auth */}
               <button 
                 type="button"
                 onClick={handleGoogleLogin} 
-                className="clay-pill" 
-                style={{ width: "100%", background: "var(--warm-sand)", color: "var(--charcoal)", marginTop: "12px" }}
+                className="flat-btn" 
+                style={{ width: "100%", justifyContent: "center", marginTop: "12px" }}
               >
                 Sign in with Google 🌐
               </button>
 
-              <div style={{ marginTop: "20px", fontSize: "0.8rem" }}>
+              <div style={{ marginTop: "20px", fontSize: "0.8rem", textAlign: "center" }}>
                 <a 
                   href="#" 
                   onClick={(e) => {
                     e.preventDefault();
                     setIsRegistering(!isRegistering);
                   }}
-                  style={{ color: "var(--coral-crimson)" }}
+                  style={{ color: "var(--accent-coral)" }}
                 >
-                  {isRegistering ? "Already have an account? Sign In" : "Need a profile? Register Web2 credentials"}
+                  {isRegistering ? "Already have an account? Sign In" : "Need Web2 credentials? Register here"}
                 </a>
               </div>
-            </section>
-          </div>
-        ) : needsOnboarding ? (
-          /* =========================================================
-             2. AUTHENTICATED & UNONBOARDED: Onboarding form Gate
-             ========================================================= */
-          <OnboardingForm 
-            userId={activeUid} 
-            userEmail={activeEmail} 
-            onComplete={handleOnboardingComplete} 
-          />
-        ) : (
-          /* =========================================================
-             3. PROTECTED AREA: Bento grid + conversational RAG
-             ========================================================= */
-          <div style={{ width: "100%", display: "flex", flexDirection: "column", gap: "20px" }}>
-            <BentoDashboard 
-              profile={profile} 
-              onUpdateProfile={updateProfileFields}
-              ragToggles={ragToggles}
-              onToggleRag={handleToggleRag}
-            />
-
-            <ChatInterface 
-              messages={messages}
-              loading={chatLoading}
-              loadingMore={loadingMore}
-              hasMore={hasMore}
-              fetchMoreMessages={fetchMoreMessages}
-              onSendMessage={handleSendMessage}
-              ragToggles={ragToggles}
-              profile={profile}
-            />
+            </div>
           </div>
         )}
-      </main>
 
-      <footer style={{ padding: "20px 40px", borderTop: "1px solid rgba(225, 219, 209, 0.12)", fontSize: "0.8rem", color: "var(--sand-dark)", background: "rgba(26, 27, 28, 0.2)", marginTop: "auto" }}>
-        © 2026 Mellow Conversational Engine. Made by Team Falcons May 2026.
-      </footer>
-    </div>
+      </div>
+    </BrowserRouter>
   );
 }
