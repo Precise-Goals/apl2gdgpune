@@ -10,6 +10,7 @@ export default function OnboardingForm({ userId, userEmail, onComplete }) {
     age: "",
     gender: "Other",
     phone: "",
+    basicInfo: "", // Detailed research profile
     characterPreference: "cyberpunk_hacker"
   });
   const [submitting, setSubmitting] = useState(false);
@@ -17,9 +18,9 @@ export default function OnboardingForm({ userId, userEmail, onComplete }) {
 
   const characters = [
     { id: "cyberpunk_hacker", name: "Cyberpunk Hacker", desc: "A neon-charged tech wizard specialized in cryptographic data nodes.", icon: "⚡" },
-    { id: "synthwave_samurai", name: "Synthwave Samurai", desc: "A retro-futuristic warrior channeling nostalgic lo-fi harmonics.", icon: "🎸" },
-    { id: "solarpunk_mystic", name: "Solarpunk Mystic", desc: "An ecological guide syncing organic networks with computing.", icon: "🌱" },
-    { id: "retro_gamer", name: "Retro Gamer", desc: "An 8-bit companion bringing pixelated dynamic strategies.", icon: "🕹️" }
+    { id: "synthwave_samurai", name: "Synthwave Samurai", desc: "A retro-futuristic warrior channeling nostalgic lo-fi harmonics.", icon: "👺" },
+    { id: "solarpunk_mystic", name: "Solarpunk Mystic", desc: "An ecological guide syncing organic networks with computing.", icon: "👽" },
+    { id: "retro_gamer", name: "Retro Gamer", desc: "An 8-bit companion bringing pixelated dynamic strategies.", icon: "👾" }
   ];
 
   const handleInputChange = (e) => {
@@ -28,8 +29,8 @@ export default function OnboardingForm({ userId, userEmail, onComplete }) {
   };
 
   const handleNext = () => {
-    if (step === 1 && (!formData.firstName || !formData.alias || !formData.age)) {
-      setError("Please complete all profile details to ride the waves!");
+    if (step === 1 && (!formData.firstName || !formData.alias || !formData.age || !formData.basicInfo)) {
+      setError("Please complete all profile details and write your research background!");
       return;
     }
     setError(null);
@@ -70,18 +71,18 @@ export default function OnboardingForm({ userId, userEmail, onComplete }) {
   };
 
   return (
-    <div className="glass-panel asymmetric-tile" style={{ padding: "40px", maxWidth: "550px", width: "100%", boxSizing: "border-box" }}>
-      <div className="skewed-tag" style={{ marginBottom: "20px" }}>
-        MELLOW onboarding funnel
+    <div className="flat-card" style={{ maxWidth: "600px", width: "100%", padding: "40px", boxSizing: "border-box", textAlign: "left" }}>
+      <div style={{ display: "inline-flex", color: "var(--accent-coral)", fontSize: "0.75rem", fontWeight: "700", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: "15px" }}>
+        ✦ MELLOW ONBOARDING PORTAL
       </div>
       
-      <h2>Step {step} of 2</h2>
-      <p style={{ color: "var(--sand-dark)", marginBottom: "30px" }}>
-        {step === 1 ? "Initialize your biometric and routing identity." : "Select your dynamic 3D RAG chat companion companion."}
+      <h2 style={{ fontSize: "2.4rem", fontFamily: "var(--font-serif)", marginBottom: "10px" }}>Step {step} of 2</h2>
+      <p style={{ fontSize: "0.95rem", opacity: 0.8, marginBottom: "30px" }}>
+        {step === 1 ? "Initialize your demographics and declare your research goals." : "Select your dynamic RAG companion persona."}
       </p>
 
       {error && (
-        <div style={{ background: "rgba(207, 82, 84, 0.15)", border: "1px solid var(--coral-crimson)", color: "var(--sand-light)", padding: "12px", borderRadius: "12px", marginBottom: "20px" }}>
+        <div style={{ border: "1px solid var(--accent-coral)", color: "var(--accent-coral)", padding: "12px", fontSize: "0.85rem", marginBottom: "20px" }}>
           ⚠️ {error}
         </div>
       )}
@@ -89,41 +90,43 @@ export default function OnboardingForm({ userId, userEmail, onComplete }) {
       <form onSubmit={handleSubmit}>
         {step === 1 ? (
           <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
-            <div>
-              <label style={{ display: "block", marginBottom: "8px", fontWeight: "600" }}>First Name</label>
-              <input
-                type="text"
-                name="firstName"
-                value={formData.firstName}
-                onChange={handleInputChange}
-                className="clay-input"
-                placeholder="Neo"
-                required
-              />
-            </div>
             
-            <div>
-              <label style={{ display: "block", marginBottom: "8px", fontWeight: "600" }}>User Alias</label>
-              <input
-                type="text"
-                name="alias"
-                value={formData.alias}
-                onChange={handleInputChange}
-                className="clay-input"
-                placeholder="TheOne"
-                required
-              />
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "15px" }}>
+              <div>
+                <label style={{ display: "block", marginBottom: "6px", fontWeight: "600", fontSize: "0.85rem" }}>First Name</label>
+                <input
+                  type="text"
+                  name="firstName"
+                  value={formData.firstName}
+                  onChange={handleInputChange}
+                  className="flat-input"
+                  placeholder="e.g. Neo"
+                  required
+                />
+              </div>
+              <div>
+                <label style={{ display: "block", marginBottom: "6px", fontWeight: "600", fontSize: "0.85rem" }}>User Alias</label>
+                <input
+                  type="text"
+                  name="alias"
+                  value={formData.alias}
+                  onChange={handleInputChange}
+                  className="flat-input"
+                  placeholder="e.g. TheOne"
+                  required
+                />
+              </div>
             </div>
 
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "15px" }}>
               <div>
-                <label style={{ display: "block", marginBottom: "8px", fontWeight: "600" }}>Age</label>
+                <label style={{ display: "block", marginBottom: "6px", fontWeight: "600", fontSize: "0.85rem" }}>Age</label>
                 <input
                   type="number"
                   name="age"
                   value={formData.age}
                   onChange={handleInputChange}
-                  className="clay-input"
+                  className="flat-input"
                   placeholder="24"
                   min="1"
                   max="120"
@@ -131,12 +134,12 @@ export default function OnboardingForm({ userId, userEmail, onComplete }) {
                 />
               </div>
               <div>
-                <label style={{ display: "block", marginBottom: "8px", fontWeight: "600" }}>Gender</label>
+                <label style={{ display: "block", marginBottom: "6px", fontWeight: "600", fontSize: "0.85rem" }}>Gender</label>
                 <select
                   name="gender"
                   value={formData.gender}
                   onChange={handleInputChange}
-                  className="clay-input"
+                  className="flat-input"
                   style={{ height: "46px" }}
                 >
                   <option value="Male">Male</option>
@@ -148,55 +151,85 @@ export default function OnboardingForm({ userId, userEmail, onComplete }) {
             </div>
 
             <div>
-              <label style={{ display: "block", marginBottom: "8px", fontWeight: "600" }}>Contact Number (Global)</label>
+              <label style={{ display: "block", marginBottom: "6px", fontWeight: "600", fontSize: "0.85rem" }}>Contact Number</label>
               <input
                 type="tel"
                 name="phone"
                 value={formData.phone}
                 onChange={handleInputChange}
-                className="clay-input"
+                className="flat-input"
                 placeholder="+1 555-0199"
               />
             </div>
 
-            <button type="button" onClick={handleNext} className="clay-pill" style={{ marginTop: "15px", alignSelf: "flex-end" }}>
-              Next Vector ➡️
+            {/* Massive Basic Information Area */}
+            <div>
+              <label style={{ display: "block", marginBottom: "6px", fontWeight: "600", fontSize: "0.85rem" }}>
+                Basic Research Information & Background
+              </label>
+              <textarea
+                name="basicInfo"
+                value={formData.basicInfo}
+                onChange={handleInputChange}
+                className="flat-input"
+                rows="4"
+                style={{ resize: "vertical", minHeight: "100px" }}
+                placeholder="Declare your background, research goals, and preferences to ground all AI prompts dynamically (e.g., 'I am a backend specialist studying real-time scraping architectures...')"
+                required
+              />
+            </div>
+
+            <button 
+              type="button" 
+              onClick={handleNext} 
+              className="flat-btn flat-btn-primary" 
+              style={{ marginTop: "10px", alignSelf: "flex-end" }}
+            >
+              Select Companion ➡️
             </button>
           </div>
         ) : (
           <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: "12px" }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
               {characters.map((char) => (
                 <div
                   key={char.id}
                   onClick={() => setFormData((prev) => ({ ...prev, characterPreference: char.id }))}
-                  className="glass-panel"
                   style={{
                     display: "flex",
                     alignItems: "center",
-                    gap: "15px",
+                    gap: "20px",
                     padding: "16px",
                     cursor: "pointer",
-                    borderRadius: "16px",
-                    border: formData.characterPreference === char.id ? "2px solid var(--coral-crimson)" : "1px solid rgba(225, 219, 209, 0.12)",
-                    background: formData.characterPreference === char.id ? "rgba(207, 82, 84, 0.1)" : "rgba(38, 39, 40, 0.4)"
+                    border: "1px solid var(--text-charcoal)",
+                    background: formData.characterPreference === char.id ? "rgba(207, 82, 84, 0.08)" : "var(--sand-light)",
+                    opacity: formData.characterPreference === char.id ? 1 : 0.85,
+                    transition: "all 0.2s ease"
                   }}
                 >
-                  <div style={{ fontSize: "2rem" }}>{char.icon}</div>
-                  <div style={{ flex: 1, textAlign: "left" }}>
-                    <h3 style={{ fontSize: "1.1rem" }}>{char.name}</h3>
-                    <p style={{ fontSize: "0.85rem", color: "var(--sand-dark)" }}>{char.desc}</p>
+                  <div style={{ fontSize: "2.4rem" }}>{char.icon}</div>
+                  <div style={{ flex: 1 }}>
+                    <h3 style={{ fontSize: "1.2rem", fontFamily: "var(--font-serif)" }}>{char.name}</h3>
+                    <p style={{ fontSize: "0.8rem", margin: 0, opacity: 0.8 }}>{char.desc}</p>
                   </div>
                 </div>
               ))}
             </div>
 
             <div style={{ display: "flex", justifyContent: "space-between", marginTop: "20px" }}>
-              <button type="button" onClick={handleBack} className="clay-pill" style={{ background: "var(--slate-deep)", color: "var(--warm-sand)" }}>
+              <button 
+                type="button" 
+                onClick={handleBack} 
+                className="flat-btn"
+              >
                 ⬅️ Back
               </button>
-              <button type="submit" disabled={submitting} className="clay-pill">
-                {submitting ? "Booting Companion..." : "Unlock Mellow Dashboard 🚀"}
+              <button 
+                type="submit" 
+                disabled={submitting} 
+                className="flat-btn flat-btn-primary"
+              >
+                {submitting ? "Synchronizing..." : "Access Workspace 🚀"}
               </button>
             </div>
           </div>
