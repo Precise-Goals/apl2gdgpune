@@ -96,7 +96,7 @@ export function useMellowChat(userId) {
   };
 
   // Mutator helper to append messages
-  const appendMessage = async (role, content, companion = null) => {
+  const appendMessage = async (role, content, companion = null, sources = null) => {
     if (!userId) return null;
 
     try {
@@ -106,7 +106,8 @@ export function useMellowChat(userId) {
         content,
         timestamp: serverTimestamp(),
         createdAt: new Date().toISOString(),
-        ...(companion && { companion }) // Associate dynamic 3D character preference
+        ...(companion && { companion }), // Associate dynamic companion preference
+        ...(sources && { sources }) // Store scraped RAG source lists
       };
 
       const docRef = await addDoc(messagesRef, newMsg);
