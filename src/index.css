@@ -1,11 +1,11 @@
-@import url('https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400..800;1,400..800&family=Inter:wght@300;400;500;600;700;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Inter:wght@400;500;600;700;800;900&display=swap');
 
 :root {
   /* Brand Constants */
   --accent-coral: #CF5254;
   --accent-hover: #b84143;
-  --font-serif: 'EB Garamond', Georgia, serif;
-  --font-sans: 'EB Garamond', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, serif;
+  --font-serif: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
 }
 
 /* Light Theme Variables */
@@ -47,6 +47,7 @@ html, body {
   background-color: var(--bg-paper);
   color: var(--text-charcoal);
   font-family: var(--font-sans);
+  font-weight: 500; /* Medium for crisp general text legibility */
   font-size: 16px;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -116,7 +117,7 @@ input[type=range]::-webkit-slider-runnable-track {
 /* Headings & Typography */
 h1, h2, h3, h4 {
   font-family: var(--font-serif);
-  font-weight: 400;
+  font-weight: 600; /* Semi-bold for headings */
   color: var(--text-charcoal);
   margin: 0;
   letter-spacing: normal;
@@ -125,6 +126,7 @@ h1, h2, h3, h4 {
 
 p {
   line-height: 1.6;
+  font-weight: 500;
   margin-top: 0;
   margin-bottom: 1.25rem;
   letter-spacing: normal;
