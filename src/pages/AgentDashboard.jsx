@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
+import { LuMenu, LuChevronLeft, LuChevronRight, LuSparkles, LuBell } from "react-icons/lu";
 import OnboardingForm from "../components/OnboardingForm";
-import Navbar from "../components/layout/Navbar";
 import { Sidebar, TelemetryPanel } from "../components/agent/Sidebar";
 import ChatFeed from "../components/agent/ChatFeed";
 import ChatInput from "../components/agent/ChatInput";
@@ -25,6 +25,19 @@ export default function AgentDashboard({
   const [inputText, setInputText] = useState("");
   const [isNewChat, setIsNewChat] = useState(false);
   const [activeLogId, setActiveLogId] = useState(null);
+
+  // Mobile layout state management
+  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
+  const [isDesktop, setIsDesktop] = useState(window.innerWidth >= 768);
+
+  // Track window resizing for responsive layouts
+  useEffect(() => {
+    const handleResize = () => {
+      setIsDesktop(window.innerWidth >= 768);
+    };
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   // Emotional Aspect Parameters States (Default 50%)
   const [emotionalAspects, setEmotionalAspects] = useState({
@@ -107,8 +120,17 @@ export default function AgentDashboard({
   const handleSliderChange = (aspect, val) => {
     setEmotionalAspects(prev => ({
       ...prev,
-      [aspect]: parseInt(val)
+      [aspect]: parseFloat(val)
     }));
+  };
+
+  const handleResetSliders = () => {
+    setEmotionalAspects({
+      candor: 50,
+      empathy: 50,
+      humor: 50,
+      formality: 50
+    });
   };
 
   const handleSelectSuggestion = (text) => {
@@ -126,55 +148,162 @@ export default function AgentDashboard({
   };
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", height: "100vh", overflow: "hidden", background: "var(--bg-paper)" }}>
-      {/* Top Navbar */}
-      <Navbar 
-        isAuthenticated={true} 
-        profile={profile} 
-        handleLogout={handleLogout} 
-      />
+    <div style={{ display: "flex", flexDirection: "column", height: "100vh", width: "100vw", overflow: "hidden", background: "#E1DBD1" }}>
+      
+      {/* Mobile Top Bar */}
+      {!isDesktop && (
+        <header style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          padding: "0 16px",
+          height: "64px",
+          background: "rgba(225, 219, 209, 0.95)",
+          backdropFilter: "blur(8px)",
+          borderBottom: "1px solid rgba(55, 56, 58, 0.1)",
+          width: "100%",
+          boxSizing: "border-box",
+          flexShrink: 0,
+          zIndex: 40
+        }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+            <span style={{ color: "#CF5254", fontSize: "1.2rem", display: "flex" }}>✦</span>
+            <span style={{ fontFamily: "var(--font-serif)", fontSize: "1.2rem", fontWeight: "700", color: "#37383A" }}>
+              Mellow AI
+            </span>
+          </div>
+          <button 
+            type="button"
+            onClick={() => setMobileSidebarOpen(true)}
+            style={{
+              background: "none",
+              border: "none",
+              cursor: "pointer",
+              color: "#37383A",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              padding: "8px"
+            }}
+          >
+            <LuMenu size={24} />
+          </button>
+        </header>
+      )}
 
-      {/* Main Workspace Frame */}
-      <div style={{ display: "flex", flex: 1, height: "calc(100vh - 67px)", overflow: "hidden", position: "relative" }}>
-        
-        {/* Left Sidebar */}
-        <Sidebar 
-          messages={messages}
-          onNewChat={handleNewChatClick}
-          onSelectHistory={handleHistorySelection}
-          activeLogId={activeLogId}
-          isNewChat={isNewChat}
-          sidebarOpen={sidebarOpen}
-          setSidebarOpen={setSidebarOpen}
-          bentoOpen={bentoOpen}
-          setBentoOpen={setBentoOpen}
-        />
-
-        {/* Toggle Left Sidebar Button */}
-        <button 
-          type="button"
-          onClick={() => setSidebarOpen(!sidebarOpen)}
-          style={{
-            position: "absolute",
-            left: sidebarOpen ? "285px" : "10px",
-            top: "12px",
-            zIndex: 90,
-            background: "var(--sand-light)",
-            border: "1px solid var(--border-solid)",
-            borderRadius: "50%",
-            width: "30px",
-            height: "30px",
-            cursor: "pointer",
-            fontSize: "0.8rem",
-            transition: "left 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+      {/* Mobile Sidebar Overlay Drawer */}
+      {!isDesktop && mobileSidebarOpen && (
+        <div style={{
+          position: "fixed",
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: "rgba(55, 56, 58, 0.4)",
+          backdropFilter: "blur(4px)",
+          zIndex: 999
+        }}>
+          <div style={{
+            width: "280px",
+            height: "100%",
+            background: "#37383A",
+            position: "relative",
             display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            boxShadow: "0 2px 8px var(--shadow-color)"
-          }}
-        >
-          {sidebarOpen ? "◀" : "▶"}
-        </button>
+            flexDirection: "column",
+            boxShadow: "10px 0 30px rgba(0, 0, 0, 0.3)",
+            animation: "slideIn 0.3s ease-out"
+          }}>
+            {/* Close drawer trigger */}
+            <button
+              type="button"
+              onClick={() => setMobileSidebarOpen(false)}
+              style={{
+                position: "absolute",
+                top: "16px",
+                right: "16px",
+                background: "none",
+                border: "none",
+                color: "#E1DBD1",
+                fontSize: "1.5rem",
+                cursor: "pointer",
+                zIndex: 20
+              }}
+            >
+              ×
+            </button>
+
+            <Sidebar 
+              messages={messages}
+              onNewChat={() => {
+                handleNewChatClick();
+                setMobileSidebarOpen(false);
+              }}
+              onSelectHistory={(id) => {
+                handleHistorySelection(id);
+                setMobileSidebarOpen(false);
+              }}
+              activeLogId={activeLogId}
+              isNewChat={isNewChat}
+              sidebarOpen={true}
+              profile={profile}
+              handleLogout={handleLogout}
+            />
+          </div>
+          {/* Close drawer when clicking outside the panel */}
+          <div 
+            style={{ position: "absolute", left: "280px", top: 0, right: 0, bottom: 0 }} 
+            onClick={() => setMobileSidebarOpen(false)} 
+          />
+        </div>
+      )}
+
+      {/* Main Immersive Frame */}
+      <div style={{ display: "flex", flex: 1, width: "100vw", overflow: "hidden", position: "relative" }}>
+        
+        {/* Left Sidebar (Desktop Only) */}
+        {isDesktop && (
+          <Sidebar 
+            messages={messages}
+            onNewChat={handleNewChatClick}
+            onSelectHistory={handleHistorySelection}
+            activeLogId={activeLogId}
+            isNewChat={isNewChat}
+            sidebarOpen={sidebarOpen}
+            profile={profile}
+            handleLogout={handleLogout}
+          />
+        )}
+
+        {/* Toggle Left Sidebar Button (Desktop Only) */}
+        {isDesktop && (
+          <button 
+            type="button"
+            onClick={() => setSidebarOpen(!sidebarOpen)}
+            style={{
+              position: "absolute",
+              left: sidebarOpen ? "265px" : "10px",
+              top: "16px",
+              zIndex: 30,
+              background: "rgba(255, 255, 255, 0.8)",
+              backdropFilter: "blur(4px)",
+              border: "1px solid #37383A",
+              borderRadius: "50%",
+              width: "30px",
+              height: "30px",
+              cursor: "pointer",
+              transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
+              color: "#37383A"
+            }}
+            onMouseOver={(e) => { e.currentTarget.style.color = "#CF5254"; }}
+            onMouseOut={(e) => { e.currentTarget.style.color = "#37383A"; }}
+          >
+            {sidebarOpen ? <LuChevronLeft size={16} /> : <LuChevronRight size={16} />}
+          </button>
+        )}
 
         {/* Center Panel (Chat Canvas) */}
         <div 
@@ -182,23 +311,103 @@ export default function AgentDashboard({
             flex: 1, 
             display: "flex", 
             flexDirection: "column", 
-            background: "var(--bg-paper)", 
+            background: "#E1DBD1", 
             overflow: "hidden",
-            transition: "margin 0.3s cubic-bezier(0.4, 0, 0.2, 1)"
+            position: "relative",
+            boxSizing: "border-box"
           }}
         >
-          <ChatFeed 
-            messages={messages}
-            chatLoading={chatLoading}
-            loadingMore={loadingMore}
-            hasMore={hasMore}
-            fetchMoreMessages={fetchMoreMessages}
-            sending={sending}
-            activeChar={activeChar}
-            profile={profile}
-            isNewChat={isNewChat}
-            onSelectPromptSuggestion={handleSelectSuggestion}
-          />
+          {/* Breadcrumb Workspace Header */}
+          {isDesktop && (
+            <header style={{ 
+              display: "flex", 
+              justifyContent: "space-between", 
+              alignItems: "center", 
+              padding: "0 40px", 
+              height: "64px", 
+              background: "rgba(225, 219, 209, 0.9)", 
+              backdropFilter: "blur(8px)", 
+              borderBottom: "1px solid rgba(55, 56, 58, 0.1)",
+              flexShrink: 0
+            }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                <span style={{ fontSize: "0.85rem", fontWeight: "700", textTransform: "uppercase", letterSpacing: "0.05em", color: "rgba(55,56,58,0.5)" }}>
+                  Workspace Canvas
+                </span>
+                <span style={{ fontSize: "0.85rem", color: "rgba(55,56,58,0.3)" }}>/</span>
+                <span style={{ fontSize: "0.85rem", fontWeight: "700", color: "#CF5254" }}>
+                  {isNewChat ? "New Discovery Node" : "Active Thread"}
+                </span>
+              </div>
+
+              {/* Understated Nav bar */}
+              <nav style={{ display: "flex", gap: "24px", fontSize: "0.85rem", fontWeight: "600" }}>
+                <span style={{ color: "#37383A", borderBottom: "2px solid #37383A", paddingBottom: "4px", cursor: "pointer" }}>Models</span>
+                <span style={{ color: "rgba(55,56,58,0.6)", cursor: "pointer", transition: "color 0.2s" }} onMouseOver={(e) => e.currentTarget.style.color="#37383A"} onMouseOut={(e) => e.currentTarget.style.color="rgba(55,56,58,0.6)"}>Knowledge Base</span>
+                <span style={{ color: "rgba(55,56,58,0.6)", cursor: "pointer", transition: "color 0.2s" }} onMouseOver={(e) => e.currentTarget.style.color="#37383A"} onMouseOut={(e) => e.currentTarget.style.color="rgba(55,56,58,0.6)"}>API Docs</span>
+              </nav>
+
+              {/* Inspector Toggle and notifications button */}
+              <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
+                <button 
+                  type="button"
+                  style={{
+                    background: "none",
+                    border: "none",
+                    cursor: "pointer",
+                    color: "#37383A",
+                    opacity: 0.6,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center"
+                  }}
+                  onMouseOver={(e) => e.currentTarget.style.opacity = 1}
+                  onMouseOut={(e) => e.currentTarget.style.opacity = 0.6}
+                >
+                  <LuBell size={18} />
+                </button>
+                <button 
+                  type="button"
+                  onClick={() => setBentoOpen(!bentoOpen)}
+                  style={{
+                    background: "none",
+                    border: "1px solid #37383A",
+                    borderRadius: "20px",
+                    padding: "6px 12px",
+                    fontSize: "0.75rem",
+                    fontWeight: "700",
+                    cursor: "pointer",
+                    color: "#37383A",
+                    transition: "all 0.2s ease"
+                  }}
+                  onMouseOver={(e) => { e.currentTarget.style.background = "#37383A"; e.currentTarget.style.color = "#E1DBD1"; }}
+                  onMouseOut={(e) => { e.currentTarget.style.background = "none"; e.currentTarget.style.color = "#37383A"; }}
+                >
+                  {bentoOpen ? "Hide Inspector" : "Show Inspector"}
+                </button>
+              </div>
+            </header>
+          )}
+
+          {/* Chat scrolling timeline */}
+          <div style={{ flex: 1, position: "relative", width: "100%", height: "100%", overflow: "hidden", display: "flex", flexDirection: "column" }}>
+            <ChatFeed 
+              messages={messages}
+              chatLoading={chatLoading}
+              loadingMore={loadingMore}
+              hasMore={hasMore}
+              fetchMoreMessages={fetchMoreMessages}
+              sending={sending}
+              activeChar={activeChar}
+              profile={profile}
+              isNewChat={isNewChat}
+              onSelectPromptSuggestion={handleSelectSuggestion}
+            />
+            {/* Height Spacer to prevent overlapping with floating execution bar */}
+            <div style={{ height: "100px", flexShrink: 0 }} />
+          </div>
+
+          {/* Absolute floating inputs execution bar */}
           <ChatInput 
             inputText={inputText}
             setInputText={setInputText}
@@ -208,47 +417,55 @@ export default function AgentDashboard({
           />
         </div>
 
-        {/* Toggle Right Properties Button */}
-        <button 
-          type="button"
-          onClick={() => setBentoOpen(!bentoOpen)}
-          style={{
-            position: "absolute",
-            right: bentoOpen ? "355px" : "10px",
-            top: "12px",
-            zIndex: 90,
-            background: "var(--sand-light)",
-            border: "1px solid var(--border-solid)",
-            borderRadius: "50%",
-            width: "30px",
-            height: "30px",
-            cursor: "pointer",
-            fontSize: "0.8rem",
-            transition: "right 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            boxShadow: "0 2px 8px var(--shadow-color)"
-          }}
-        >
-          {bentoOpen ? "▶" : "◀"}
-        </button>
+        {/* Toggle Right Properties Button (Desktop Only) */}
+        {isDesktop && (
+          <button 
+            type="button"
+            onClick={() => setBentoOpen(!bentoOpen)}
+            style={{
+              position: "absolute",
+              right: bentoOpen ? "305px" : "10px",
+              top: "16px",
+              zIndex: 30,
+              background: "rgba(255, 255, 255, 0.8)",
+              backdropFilter: "blur(4px)",
+              border: "1px solid #37383A",
+              borderRadius: "50%",
+              width: "30px",
+              height: "30px",
+              cursor: "pointer",
+              transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
+              color: "#37383A"
+            }}
+            onMouseOver={(e) => { e.currentTarget.style.color = "#CF5254"; }}
+            onMouseOut={(e) => { e.currentTarget.style.color = "#37383A"; }}
+          >
+            {bentoOpen ? <LuChevronRight size={16} /> : <LuChevronLeft size={16} />}
+          </button>
+        )}
 
-        {/* Collapsible Figma-style Properties Panel */}
-        <TelemetryPanel 
-          profile={profile}
-          editingProfile={editingProfile}
-          setEditingProfile={setEditingProfile}
-          profileForm={profileForm}
-          setProfileForm={setProfileForm}
-          onProfileSave={handleProfileSave}
-          ragToggles={ragToggles}
-          onToggleRag={onToggleRag}
-          emotionalAspects={emotionalAspects}
-          onSliderChange={handleSliderChange}
-          bentoOpen={bentoOpen}
-          setBentoOpen={setBentoOpen}
-        />
+        {/* Collapsible Figma-style Properties Panel (Desktop Only) */}
+        {isDesktop && (
+          <TelemetryPanel 
+            profile={profile}
+            editingProfile={editingProfile}
+            setEditingProfile={setEditingProfile}
+            profileForm={profileForm}
+            setProfileForm={setProfileForm}
+            onProfileSave={handleProfileSave}
+            ragToggles={ragToggles}
+            onToggleRag={onToggleRag}
+            emotionalAspects={emotionalAspects}
+            onSliderChange={handleSliderChange}
+            bentoOpen={bentoOpen}
+            setBentoOpen={setBentoOpen}
+            onResetSliders={handleResetSliders}
+          />
+        )}
 
       </div>
     </div>
