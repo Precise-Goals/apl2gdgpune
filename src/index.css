@@ -1,11 +1,11 @@
-@import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital,wght@0,400;1,400&family=Inter:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400..800;1,400..800&family=Inter:wght@300;400;500;600;700;900&display=swap');
 
 :root {
   /* Brand Constants */
   --accent-coral: #CF5254;
   --accent-hover: #b84143;
-  --font-serif: 'Instrument Serif', Georgia, serif;
-  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --font-serif: 'EB Garamond', Georgia, serif;
+  --font-sans: 'EB Garamond', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, serif;
 }
 
 /* Light Theme Variables */
@@ -50,7 +50,7 @@ html, body {
   font-size: 16px;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  line-height: 1.5;
+  line-height: 1.6;
   letter-spacing: normal;
   transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
 }
@@ -59,20 +59,58 @@ body {
   min-height: 100vh;
 }
 
-/* Scrollbars */
+/* Custom scrollbar for chat and scrollable containers */
+.chat-scroll::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+.chat-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+.chat-scroll::-webkit-scrollbar-thumb {
+  background-color: rgba(55, 56, 58, 0.2);
+  border-radius: 10px;
+}
+.chat-scroll::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(55, 56, 58, 0.4);
+}
+
+/* Fallback Scrollbars */
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 6px;
+  height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: var(--bg-paper);
+  background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: var(--sand-dark);
-  border-radius: 0px;
+  background: rgba(55, 56, 58, 0.2);
+  border-radius: 10px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--text-charcoal);
+  background: rgba(55, 56, 58, 0.4);
+}
+
+/* Minimalist Slider overrides */
+input[type=range] {
+  -webkit-appearance: none; 
+  background: transparent; 
+  width: 100%;
+}
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  height: 12px;
+  width: 12px;
+  border-radius: 50%;
+  background: #37383A;
+  cursor: pointer;
+  margin-top: -5px; 
+}
+input[type=range]::-webkit-slider-runnable-track {
+  width: 100%;
+  height: 1px;
+  cursor: pointer;
+  background: #37383A;
 }
 
 /* Headings & Typography */
@@ -88,6 +126,9 @@ h1, h2, h3, h4 {
 p {
   line-height: 1.6;
   margin-top: 0;
+  margin-bottom: 1.25rem;
+  letter-spacing: normal;
+}
   margin-bottom: 1.25rem;
   letter-spacing: normal;
 }
