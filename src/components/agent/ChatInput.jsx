@@ -123,6 +123,7 @@ export default function ChatInput({
               resize: "none",
               fontFamily: "var(--font-sans)",
               fontSize: "0.95rem",
+              fontWeight: "500", // Enforce crisp medium weight
               padding: "8px 10px",
               color: "#37383A",
               maxHeight: "150px",
@@ -160,7 +161,7 @@ export default function ChatInput({
           textAlign: "center",
           marginTop: "8px",
           fontSize: "0.75rem",
-          fontWeight: "500",
+          fontWeight: "600", // Enforce robust weight for legal disclaimer
           color: "rgba(55, 56, 58, 0.5)",
           fontFamily: "var(--font-sans)"
         }}>

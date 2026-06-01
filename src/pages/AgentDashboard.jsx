@@ -1,5 +1,7 @@
 import { useState, useEffect } from "react";
-import { LuMenu, LuChevronLeft, LuChevronRight, LuSparkles, LuBell } from "react-icons/lu";
+import { Link } from "react-router-dom";
+import { useTheme } from "../context/ThemeContext";
+import { LuMenu, LuChevronLeft, LuChevronRight, LuSparkles, LuBell, LuSun, LuMoon } from "react-icons/lu";
 import OnboardingForm from "../components/OnboardingForm";
 import { Sidebar, TelemetryPanel } from "../components/agent/Sidebar";
 import ChatFeed from "../components/agent/ChatFeed";
@@ -20,6 +22,7 @@ export default function AgentDashboard({
   onToggleRag,
   handleLogout
 }) {
+  const { theme, toggleTheme } = useTheme();
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [bentoOpen, setBentoOpen] = useState(true);
   const [inputText, setInputText] = useState("");
@@ -160,34 +163,49 @@ export default function AgentDashboard({
           height: "64px",
           background: "rgba(225, 219, 209, 0.95)",
           backdropFilter: "blur(8px)",
-          borderBottom: "1px solid rgba(55, 56, 58, 0.1)",
+          borderBottom: "1px solid rgba(55, 56, 58, 0.15)",
           width: "100%",
           boxSizing: "border-box",
           flexShrink: 0,
           zIndex: 40
         }}>
           <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-            <span style={{ color: "#CF5254", fontSize: "1.2rem", display: "flex" }}>✦</span>
-            <span style={{ fontFamily: "var(--font-serif)", fontSize: "1.2rem", fontWeight: "700", color: "#37383A" }}>
+            <span style={{ color: "#CF5254", fontSize: "1.2rem", display: "flex", fontWeight: "600" }}>✦</span>
+            <span style={{ fontFamily: "var(--font-serif)", fontSize: "1.2rem", fontWeight: "600", color: "#37383A" }}>
               Mellow AI
             </span>
           </div>
-          <button 
-            type="button"
-            onClick={() => setMobileSidebarOpen(true)}
-            style={{
-              background: "none",
-              border: "none",
-              cursor: "pointer",
-              color: "#37383A",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              padding: "8px"
-            }}
-          >
-            <LuMenu size={24} />
-          </button>
+          <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+            <button
+              type="button"
+              onClick={toggleTheme}
+              style={{
+                background: "none",
+                border: "none",
+                cursor: "pointer",
+                color: "#37383A",
+                padding: "8px"
+              }}
+            >
+              {theme === "light" ? <LuMoon size={20} /> : <LuSun size={20} />}
+            </button>
+            <button 
+              type="button"
+              onClick={() => setMobileSidebarOpen(true)}
+              style={{
+                background: "none",
+                border: "none",
+                cursor: "pointer",
+                color: "#37383A",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                padding: "8px"
+              }}
+            >
+              <LuMenu size={24} />
+            </button>
+          </div>
         </header>
       )}
 
@@ -317,7 +335,7 @@ export default function AgentDashboard({
             boxSizing: "border-box"
           }}
         >
-          {/* Breadcrumb Workspace Header */}
+          {/* Breadcrumb Global Workspace Header Navbar */}
           {isDesktop && (
             <header style={{ 
               display: "flex", 
@@ -327,28 +345,54 @@ export default function AgentDashboard({
               height: "64px", 
               background: "rgba(225, 219, 209, 0.9)", 
               backdropFilter: "blur(8px)", 
-              borderBottom: "1px solid rgba(55, 56, 58, 0.1)",
-              flexShrink: 0
+              borderBottom: "1px solid rgba(55, 56, 58, 0.15)",
+              flexShrink: 0,
+              zIndex: 10
             }}>
+              {/* Active Breadcrumbs */}
               <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                <span style={{ fontSize: "0.85rem", fontWeight: "700", textTransform: "uppercase", letterSpacing: "0.05em", color: "rgba(55,56,58,0.5)" }}>
+                <span style={{ fontSize: "0.85rem", fontWeight: "600", textTransform: "uppercase", letterSpacing: "0.05em", color: "rgba(55,56,58,0.5)", fontFamily: "var(--font-sans)" }}>
                   Workspace Canvas
                 </span>
                 <span style={{ fontSize: "0.85rem", color: "rgba(55,56,58,0.3)" }}>/</span>
-                <span style={{ fontSize: "0.85rem", fontWeight: "700", color: "#CF5254" }}>
+                <span style={{ fontSize: "0.85rem", fontWeight: "600", color: "#CF5254", fontFamily: "var(--font-serif)" }}>
                   {isNewChat ? "New Discovery Node" : "Active Thread"}
                 </span>
               </div>
 
-              {/* Understated Nav bar */}
-              <nav style={{ display: "flex", gap: "24px", fontSize: "0.85rem", fontWeight: "600" }}>
-                <span style={{ color: "#37383A", borderBottom: "2px solid #37383A", paddingBottom: "4px", cursor: "pointer" }}>Models</span>
-                <span style={{ color: "rgba(55,56,58,0.6)", cursor: "pointer", transition: "color 0.2s" }} onMouseOver={(e) => e.currentTarget.style.color="#37383A"} onMouseOut={(e) => e.currentTarget.style.color="rgba(55,56,58,0.6)"}>Knowledge Base</span>
-                <span style={{ color: "rgba(55,56,58,0.6)", cursor: "pointer", transition: "color 0.2s" }} onMouseOver={(e) => e.currentTarget.style.color="#37383A"} onMouseOut={(e) => e.currentTarget.style.color="rgba(55,56,58,0.6)"}>API Docs</span>
+              {/* Visually Distinct Top Navigation Links */}
+              <nav style={{ display: "flex", gap: "28px", fontSize: "0.9rem", fontWeight: "600", fontFamily: "var(--font-sans)" }}>
+                <Link to="/" style={{ color: "#37383A", textDecoration: "none", transition: "color 0.2s" }} onMouseOver={(e) => e.currentTarget.style.color="#CF5254"} onMouseOut={(e) => e.currentTarget.style.color="#37383A"}>Home</Link>
+                <Link to="/docs" style={{ color: "#37383A", textDecoration: "none", transition: "color 0.2s" }} onMouseOver={(e) => e.currentTarget.style.color="#CF5254"} onMouseOut={(e) => e.currentTarget.style.color="#37383A"}>Docs</Link>
+                <Link to="/about" style={{ color: "#37383A", textDecoration: "none", transition: "color 0.2s" }} onMouseOver={(e) => e.currentTarget.style.color="#CF5254"} onMouseOut={(e) => e.currentTarget.style.color="#37383A"}>About</Link>
               </nav>
 
-              {/* Inspector Toggle and notifications button */}
+              {/* Right Global Inspector Toggle, Mode switcher, and Notifications */}
               <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
+                
+                {/* Light / Dark Mode Toggle */}
+                <button
+                  type="button"
+                  onClick={toggleTheme}
+                  title={`Switch to ${theme === "light" ? "Dark" : "Light"} Mode`}
+                  style={{
+                    background: "none",
+                    border: "none",
+                    cursor: "pointer",
+                    color: "#37383A",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    padding: "6px",
+                    opacity: 0.8,
+                    transition: "opacity 0.2s"
+                  }}
+                  onMouseOver={(e) => e.currentTarget.style.opacity = 1}
+                  onMouseOut={(e) => e.currentTarget.style.opacity = 0.8}
+                >
+                  {theme === "light" ? <LuMoon size={18} /> : <LuSun size={18} />}
+                </button>
+
                 <button 
                   type="button"
                   style={{
@@ -375,10 +419,11 @@ export default function AgentDashboard({
                     borderRadius: "20px",
                     padding: "6px 12px",
                     fontSize: "0.75rem",
-                    fontWeight: "700",
+                    fontWeight: "600",
                     cursor: "pointer",
                     color: "#37383A",
-                    transition: "all 0.2s ease"
+                    transition: "all 0.2s ease",
+                    fontFamily: "var(--font-sans)"
                   }}
                   onMouseOver={(e) => { e.currentTarget.style.background = "#37383A"; e.currentTarget.style.color = "#E1DBD1"; }}
                   onMouseOut={(e) => { e.currentTarget.style.background = "none"; e.currentTarget.style.color = "#37383A"; }}
