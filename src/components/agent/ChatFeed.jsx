@@ -74,7 +74,8 @@ export default function ChatFeed({
             background: "transparent",
             color: "#37383A",
             cursor: "pointer",
-            fontWeight: "600"
+            fontWeight: "600",
+            fontFamily: "var(--font-sans)"
           }}
         >
           {loadingMore ? "Seeking older sessions..." : "Load Prior Discoveries ✦"}
@@ -84,7 +85,7 @@ export default function ChatFeed({
       {chatLoading ? (
         <div style={{ margin: "auto", display: "flex", flexDirection: "column", alignItems: "center", gap: "12px", opacity: 0.6 }}>
           <div style={{ fontSize: "1.8rem", animation: "spin 2s linear infinite", color: "#CF5254" }}>✦</div>
-          <div style={{ fontSize: "1rem", fontWeight: "600" }}>Aligning RAG channels...</div>
+          <div style={{ fontSize: "1rem", fontWeight: "600", fontFamily: "var(--font-sans)" }}>Aligning RAG channels...</div>
         </div>
       ) : showEmptyState ? (
         /* Empty State with Centered Suggestion Chips */
@@ -92,6 +93,7 @@ export default function ChatFeed({
           <h2 style={{ 
             fontSize: "3rem", 
             fontFamily: "var(--font-serif)", 
+            fontWeight: "600", // Semi-bold headings
             lineHeight: "1.2", 
             marginBottom: "16px",
             color: "#37383A"
@@ -99,11 +101,12 @@ export default function ChatFeed({
             What shall we discover together, {profile?.alias || "Nomad"}?
           </h2>
           <p style={{ 
-            fontSize: "1.1rem", 
+            fontSize: "1.05rem", 
             lineHeight: "1.6", 
             color: "#37383A",
-            opacity: 0.9, 
-            marginBottom: "35px" 
+            fontWeight: "500", // Medium body text
+            marginBottom: "35px",
+            fontFamily: "var(--font-sans)"
           }}>
             Your research parameters are grounded. 
             Toggle active RAG scraper nodes on the right, customize emotional sliders, or launch an analytical prompt below.
@@ -112,10 +115,11 @@ export default function ChatFeed({
           <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
             <div style={{ 
               fontSize: "0.75rem", 
-              fontWeight: "700", 
+              fontWeight: "600", 
               opacity: 0.5, 
               textTransform: "uppercase", 
-              letterSpacing: "0.08em" 
+              letterSpacing: "0.08em",
+              fontFamily: "var(--font-sans)"
             }}>
               Suggested Prompt Channels
             </div>
@@ -136,7 +140,8 @@ export default function ChatFeed({
                     display: "flex",
                     flexDirection: "column",
                     gap: "6px",
-                    outline: "none"
+                    outline: "none",
+                    fontFamily: "var(--font-sans)"
                   }}
                   onMouseOver={(e) => {
                     e.currentTarget.style.borderColor = "#CF5254";
@@ -151,7 +156,7 @@ export default function ChatFeed({
                 >
                   <span style={{ 
                     fontSize: "0.7rem", 
-                    fontWeight: "700", 
+                    fontWeight: "600", 
                     color: "#CF5254", 
                     textTransform: "uppercase",
                     display: "flex",
@@ -194,14 +199,15 @@ export default function ChatFeed({
                   {/* Speaker Label with Icon */}
                   <div style={{ 
                     fontSize: "0.7rem", 
-                    fontWeight: "700", 
+                    fontWeight: "600", 
                     color: isUser ? "rgba(255,255,255,0.85)" : "#CF5254", 
                     textTransform: "uppercase", 
                     letterSpacing: "0.08em",
                     marginBottom: "8px",
                     display: "flex",
                     alignItems: "center",
-                    gap: "6px"
+                    gap: "6px",
+                    fontFamily: "var(--font-sans)"
                   }}>
                     {isUser ? <LuUser size={12} /> : <LuSparkles size={12} />}
                     {isUser ? "You" : `Mellow (${activeChar?.name || "Companion"})`}
@@ -209,7 +215,7 @@ export default function ChatFeed({
 
                   {/* Perplexity RAG Sources */}
                   {!isUser && msg.sources && msg.sources.length > 0 && (
-                    <div className="perplexity-sources-grid">
+                    <div className="perplexity-sources-grid" style={{ fontFamily: "var(--font-sans)" }}>
                       {msg.sources.map((src, sIdx) => (
                         <a 
                           key={sIdx} 
@@ -220,7 +226,7 @@ export default function ChatFeed({
                           style={{ textDecoration: "none", display: "block", borderRadius: "6px" }}
                         >
                           <div style={{ 
-                            fontWeight: "700", 
+                            fontWeight: "600", 
                             color: "#CF5254", 
                             marginBottom: "4px", 
                             fontSize: "0.8rem",
@@ -234,6 +240,7 @@ export default function ChatFeed({
                             fontSize: "0.75rem", 
                             color: "#37383A", 
                             opacity: 0.8, 
+                            fontWeight: "500",
                             overflow: "hidden", 
                             textOverflow: "ellipsis", 
                             display: "-webkit-box", 
@@ -248,12 +255,14 @@ export default function ChatFeed({
                     </div>
                   )}
 
-                  {/* Text Content in Editorial EB Garamond Style */}
+                  {/* Text Content in Bold Editorial style */}
                   <div style={{ 
-                    fontSize: "1.05rem", 
+                    fontSize: "0.95rem", 
+                    fontWeight: "500", // Crisp legibility weight
                     lineHeight: "1.6", 
                     whiteSpace: "pre-wrap",
-                    letterSpacing: "normal"
+                    letterSpacing: "normal",
+                    fontFamily: "var(--font-sans)"
                   }}>
                     {msg.content}
                   </div>
@@ -267,9 +276,9 @@ export default function ChatFeed({
       {/* Generating Indicator (Synthesizing...) */}
       {sending && (
         <div style={{ display: "flex", justifyContent: "flex-start", width: "100%", maxWidth: "800px", margin: "20px auto 0 auto" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: "8px", color: "#37383A", opacity: 0.7, fontSize: "0.9rem", fontWeight: "600" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "8px", color: "#37383A", opacity: 0.7, fontSize: "0.9rem", fontWeight: "600", fontFamily: "var(--font-sans)" }}>
             <span style={{ fontSize: "1.1rem", animation: "spin 2s linear infinite", display: "inline-block", color: "#CF5254" }}>✦</span>
-            <span style={{ fontStyle: "italic" }}>Synthesizing portal context...</span>
+            <span style={{ fontStyle: "normal" }}>Synthesizing portal context...</span>
           </div>
         </div>
       )}

@@ -55,8 +55,8 @@ export function Sidebar({
         }}
       >
         <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-          <span style={{ color: "#CF5254", fontSize: "1.3rem", display: "flex", alignItems: "center" }}>✦</span>
-          <span style={{ fontFamily: "var(--font-serif)", fontSize: "1.4rem", fontWeight: "700", letterSpacing: "normal", color: "#E1DBD1" }}>
+          <span style={{ color: "#CF5254", fontSize: "1.3rem", display: "flex", alignItems: "center", fontWeight: "600" }}>✦</span>
+          <span style={{ fontFamily: "var(--font-serif)", fontSize: "1.4rem", fontWeight: "600", letterSpacing: "normal", color: "#E1DBD1" }}>
             Mellow AI
           </span>
         </div>
@@ -79,7 +79,8 @@ export function Sidebar({
             border: "none",
             cursor: "pointer",
             gap: "8px",
-            transition: "background-color 0.2s ease"
+            transition: "background-color 0.2s ease",
+            fontFamily: "var(--font-sans)"
           }}
           onMouseOver={(e) => e.currentTarget.style.backgroundColor = "#b84143"}
           onMouseOut={(e) => e.currentTarget.style.backgroundColor = "#CF5254"}
@@ -103,13 +104,14 @@ export function Sidebar({
           color: "rgba(225, 219, 209, 0.4)", 
           textTransform: "uppercase", 
           letterSpacing: "0.08em", 
-          marginBottom: "12px"
+          marginBottom: "12px",
+          fontFamily: "var(--font-sans)"
         }}>
           Discovery Sessions
         </div>
 
         {userMessages.length === 0 ? (
-          <p style={{ fontSize: "0.85rem", color: "#E1DBD1", opacity: 0.5, fontStyle: "italic", padding: "0 4px" }}>
+          <p style={{ fontSize: "0.85rem", color: "#E1DBD1", opacity: 0.5, fontWeight: "500", fontStyle: "normal", padding: "0 4px", fontFamily: "var(--font-sans)" }}>
             No previous telemetry logs.
           </p>
         ) : (
@@ -129,6 +131,8 @@ export function Sidebar({
                     background: isActive ? "rgba(255, 255, 255, 0.08)" : "transparent",
                     border: isActive ? "1px solid rgba(225, 219, 209, 0.3)" : "1px solid transparent",
                     fontSize: "0.85rem",
+                    fontWeight: "500",
+                    fontFamily: "var(--font-sans)",
                     textAlign: "left",
                     cursor: "pointer",
                     width: "100%",
@@ -166,7 +170,8 @@ export function Sidebar({
           textTransform: "uppercase", 
           letterSpacing: "0.08em", 
           marginTop: "24px",
-          marginBottom: "12px"
+          marginBottom: "12px",
+          fontFamily: "var(--font-sans)"
         }}>
           Archived Threads
         </div>
@@ -177,6 +182,8 @@ export function Sidebar({
             gap: "10px",
             padding: "10px 14px",
             fontSize: "0.85rem",
+            fontWeight: "500",
+            fontFamily: "var(--font-sans)",
             color: "#E1DBD1",
             opacity: 0.6,
             borderRadius: "8px",
@@ -214,9 +221,10 @@ export function Sidebar({
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              fontWeight: "bold",
+              fontWeight: "600",
               fontSize: "0.9rem",
-              flexShrink: 0
+              flexShrink: 0,
+              fontFamily: "var(--font-sans)"
             }}>
               {profile?.alias ? profile.alias[0].toUpperCase() : "N"}
             </div>
@@ -227,11 +235,12 @@ export function Sidebar({
                 color: "#E1DBD1", 
                 whiteSpace: "nowrap", 
                 overflow: "hidden", 
-                textOverflow: "ellipsis" 
+                textOverflow: "ellipsis",
+                fontFamily: "var(--font-sans)"
               }}>
                 {profile?.firstName || "Nomad"}
               </span>
-              <span style={{ fontSize: "0.7rem", color: "#E1DBD1", opacity: 0.5 }}>
+              <span style={{ fontSize: "0.7rem", fontWeight: "500", color: "#E1DBD1", opacity: 0.5, fontFamily: "var(--font-sans)" }}>
                 {profile?.alias ? `@${profile.alias.toLowerCase()}` : "Active Session"}
               </span>
             </div>
@@ -260,7 +269,7 @@ export function Sidebar({
           </button>
         </div>
 
-        <div style={{ display: "flex", alignItems: "center", gap: "8px", fontSize: "0.75rem", opacity: 0.7 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "8px", fontSize: "0.75rem", fontWeight: "500", opacity: 0.7, fontFamily: "var(--font-sans)" }}>
           <span style={{ width: "6px", height: "6px", borderRadius: "50%", background: "#4CAF50", display: "inline-block" }}></span>
           <span>Matrix Node: Operational</span>
         </div>
@@ -345,8 +354,8 @@ export function TelemetryPanel({
           <div style={{ padding: "16px 20px", display: "flex", alignItems: "center", gap: "10px", borderBottom: "1px solid rgba(55, 56, 58, 0.1)", flexShrink: 0 }}>
             <LuSlidersHorizontal size={18} style={{ color: "#37383A" }} />
             <div style={{ display: "flex", flexDirection: "column" }}>
-              <span style={{ fontSize: "0.85rem", fontWeight: "900", color: "#37383A" }}>Inspector</span>
-              <span style={{ fontSize: "0.7rem", color: "rgba(55, 56, 58, 0.7)" }}>Real-time Tuning</span>
+              <span style={{ fontSize: "0.85rem", fontWeight: "600", color: "#37383A", fontFamily: "var(--font-serif)" }}>Inspector</span>
+              <span style={{ fontSize: "0.7rem", fontWeight: "500", color: "rgba(55, 56, 58, 0.7)", fontFamily: "var(--font-sans)" }}>Real-time Tuning</span>
             </div>
             <button 
               type="button"
@@ -358,7 +367,7 @@ export function TelemetryPanel({
           </div>
 
           {/* Sub Navigation Bar inside Right Panel */}
-          <nav style={{ display: "flex", gap: "16px", padding: "12px 20px 0", borderBottom: "1px solid rgba(55, 56, 58, 0.08)", fontSize: "0.8rem", fontWeight: "600", flexShrink: 0 }}>
+          <nav style={{ display: "flex", gap: "16px", padding: "12px 20px 0", borderBottom: "1px solid rgba(55, 56, 58, 0.08)", fontSize: "0.8rem", fontWeight: "600", flexShrink: 0, fontFamily: "var(--font-sans)" }}>
             <button 
               type="button" 
               onClick={() => setActiveTab("parameters")}
@@ -369,7 +378,7 @@ export function TelemetryPanel({
                 paddingBottom: "8px", 
                 color: activeTab === "parameters" ? "#CF5254" : "rgba(55, 56, 58, 0.6)", 
                 cursor: "pointer",
-                fontWeight: activeTab === "parameters" ? "700" : "600"
+                fontWeight: "600"
               }}
             >
               Parameters
@@ -384,7 +393,7 @@ export function TelemetryPanel({
                 paddingBottom: "8px", 
                 color: activeTab === "context" ? "#CF5254" : "rgba(55, 56, 58, 0.6)", 
                 cursor: "pointer",
-                fontWeight: activeTab === "context" ? "700" : "600"
+                fontWeight: "600"
               }}
             >
               Context
@@ -399,7 +408,7 @@ export function TelemetryPanel({
                 paddingBottom: "8px", 
                 color: activeTab === "identity" ? "#CF5254" : "rgba(55, 56, 58, 0.6)", 
                 cursor: "pointer",
-                fontWeight: activeTab === "identity" ? "700" : "600"
+                fontWeight: "600"
               }}
             >
               Identity
@@ -413,10 +422,10 @@ export function TelemetryPanel({
               <>
                 {/* 1. Emotional Matrix parameters section */}
                 <section style={{ background: "rgba(255, 255, 255, 0.4)", border: "1px solid rgba(55, 56, 58, 0.15)", borderRadius: "8px", padding: "16px" }}>
-                  <h4 style={{ fontSize: "0.85rem", fontWeight: "700", marginBottom: "16px", color: "#37383A", fontFamily: "var(--font-serif)" }}>
+                  <h4 style={{ fontSize: "0.85rem", fontWeight: "600", marginBottom: "16px", color: "#37383A", fontFamily: "var(--font-serif)" }}>
                     Emotional Matrix
                   </h4>
-                  <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+                  <div style={{ display: "flex", flexDirection: "column", gap: "16px", fontFamily: "var(--font-sans)" }}>
                     {/* Candor */}
                     <div>
                       <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.75rem", fontWeight: "600", color: "#37383A", marginBottom: "6px" }}>
@@ -483,14 +492,14 @@ export function TelemetryPanel({
                 <section style={{ background: "rgba(255, 255, 255, 0.4)", border: "1px solid rgba(55, 56, 58, 0.15)", borderRadius: "8px", padding: "16px" }}>
                   <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "16px" }}>
                     <LuCpu size={16} style={{ color: "#37383A" }} />
-                    <h4 style={{ fontSize: "0.85rem", fontWeight: "700", color: "#37383A", fontFamily: "var(--font-serif)" }}>
+                    <h4 style={{ fontSize: "0.85rem", fontWeight: "600", color: "#37383A", fontFamily: "var(--font-serif)" }}>
                       Active Context (RAG)
                     </h4>
                   </div>
-                  <div style={{ display: "flex", flexDirection: "column" }}>
+                  <div style={{ display: "flex", flexDirection: "column", fontFamily: "var(--font-sans)" }}>
                     {/* Weather Toggle */}
                     <div className="flat-toggle-wrapper" style={{ padding: "8px 0" }}>
-                      <span style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "0.8rem", fontWeight: "500", color: "#37383A" }}>
+                      <span style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "0.8rem", fontWeight: "600", color: "#37383A" }}>
                         <LuCloud size={14} style={{ opacity: 0.7 }} /> Weather Data
                       </span>
                       <label className="flat-switch">
@@ -501,7 +510,7 @@ export function TelemetryPanel({
 
                     {/* Sports Toggle */}
                     <div className="flat-toggle-wrapper" style={{ padding: "8px 0" }}>
-                      <span style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "0.8rem", fontWeight: "500", color: "#37383A" }}>
+                      <span style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "0.8rem", fontWeight: "600", color: "#37383A" }}>
                         <LuTrophy size={14} style={{ opacity: 0.7 }} /> Sports Standings
                       </span>
                       <label className="flat-switch">
@@ -512,7 +521,7 @@ export function TelemetryPanel({
 
                     {/* Web Scraper news Toggle */}
                     <div className="flat-toggle-wrapper" style={{ borderBottom: "none", padding: "8px 0" }}>
-                      <span style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "0.8rem", fontWeight: "500", color: "#37383A" }}>
+                      <span style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "0.8rem", fontWeight: "600", color: "#37383A" }}>
                         <LuGlobe size={14} style={{ opacity: 0.7 }} /> Live Web Scraper
                       </span>
                       <label className="flat-switch">
@@ -541,7 +550,8 @@ export function TelemetryPanel({
                     alignItems: "center",
                     justifyContent: "center",
                     gap: "8px",
-                    transition: "all 0.2s ease"
+                    transition: "all 0.2s ease",
+                    fontFamily: "var(--font-sans)"
                   }}
                   onMouseOver={(e) => { e.currentTarget.style.backgroundColor = "rgba(55,56,58,0.1)"; }}
                   onMouseOut={(e) => { e.currentTarget.style.backgroundColor = "transparent"; }}
@@ -552,8 +562,8 @@ export function TelemetryPanel({
             )}
 
             {activeTab === "context" && profile && (
-              <section style={{ background: "rgba(255, 255, 255, 0.4)", border: "1px solid rgba(55, 56, 58, 0.15)", borderRadius: "8px", padding: "16px", display: "flex", flexDirection: "column", gap: "12px" }}>
-                <h4 style={{ fontSize: "0.85rem", fontWeight: "700", color: "#37383A", fontFamily: "var(--font-serif)" }}>Compute Telemetry</h4>
+              <section style={{ background: "rgba(255, 255, 255, 0.4)", border: "1px solid rgba(55, 56, 58, 0.15)", borderRadius: "8px", padding: "16px", display: "flex", flexDirection: "column", gap: "12px", fontFamily: "var(--font-sans)" }}>
+                <h4 style={{ fontSize: "0.85rem", fontWeight: "600", color: "#37383A", fontFamily: "var(--font-serif)" }}>Compute Telemetry</h4>
                 
                 <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
                   <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.8rem", fontWeight: "600" }}>
@@ -578,8 +588,8 @@ export function TelemetryPanel({
             )}
 
             {activeTab === "identity" && profile && (
-              <section style={{ background: "rgba(255, 255, 255, 0.4)", border: "1px solid rgba(55, 56, 58, 0.15)", borderRadius: "8px", padding: "16px" }}>
-                <h4 style={{ fontSize: "0.85rem", fontWeight: "700", marginBottom: "12px", color: "#37383A", fontFamily: "var(--font-serif)" }}>Identity Profile</h4>
+              <section style={{ background: "rgba(255, 255, 255, 0.4)", border: "1px solid rgba(55, 56, 58, 0.15)", borderRadius: "8px", padding: "16px", fontFamily: "var(--font-sans)" }}>
+                <h4 style={{ fontSize: "0.85rem", fontWeight: "600", marginBottom: "12px", color: "#37383A", fontFamily: "var(--font-serif)" }}>Identity Profile</h4>
                 
                 {!editingProfile ? (
                   <div style={{ fontSize: "0.85rem", display: "flex", flexDirection: "column", gap: "10px" }}>
@@ -622,7 +632,7 @@ export function TelemetryPanel({
                       value={profileForm.firstName} 
                       onChange={(e) => setProfileForm(prev => ({ ...prev, firstName: e.target.value }))} 
                       className="flat-input" 
-                      style={{ padding: "8px 12px", fontSize: "0.8rem" }} 
+                      style={{ padding: "8px 12px", fontSize: "0.8rem", fontWeight: "500" }} 
                       placeholder="First Name" 
                     />
                     <input 
@@ -630,7 +640,7 @@ export function TelemetryPanel({
                       value={profileForm.alias} 
                       onChange={(e) => setProfileForm(prev => ({ ...prev, alias: e.target.value }))} 
                       className="flat-input" 
-                      style={{ padding: "8px 12px", fontSize: "0.8rem" }} 
+                      style={{ padding: "8px 12px", fontSize: "0.8rem", fontWeight: "500" }} 
                       placeholder="Alias" 
                     />
                     <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "6px" }}>
@@ -639,14 +649,14 @@ export function TelemetryPanel({
                         value={profileForm.age} 
                         onChange={(e) => setProfileForm(prev => ({ ...prev, age: e.target.value }))} 
                         className="flat-input" 
-                        style={{ padding: "8px 12px", fontSize: "0.8rem" }} 
+                        style={{ padding: "8px 12px", fontSize: "0.8rem", fontWeight: "500" }} 
                         placeholder="Age" 
                       />
                       <select 
                         value={profileForm.gender} 
                         onChange={(e) => setProfileForm(prev => ({ ...prev, gender: e.target.value }))} 
                         className="flat-input" 
-                        style={{ padding: "8px 12px", fontSize: "0.8rem", height: "38px" }}
+                        style={{ padding: "8px 12px", fontSize: "0.8rem", fontWeight: "500", height: "38px" }}
                       >
                         <option value="Male">Male</option>
                         <option value="Female">Female</option>
@@ -658,7 +668,7 @@ export function TelemetryPanel({
                       value={profileForm.basicInfo} 
                       onChange={(e) => setProfileForm(prev => ({ ...prev, basicInfo: e.target.value }))} 
                       className="flat-input" 
-                      style={{ padding: "8px 12px", fontSize: "0.8rem", minHeight: "60px", resize: "vertical" }} 
+                      style={{ padding: "8px 12px", fontSize: "0.8rem", fontWeight: "500", minHeight: "60px", resize: "vertical" }} 
                       placeholder="Research goals background" 
                     />
                     <div style={{ display: "flex", gap: "8px", marginTop: "4px" }}>
