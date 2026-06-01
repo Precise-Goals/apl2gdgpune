@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useEffect } from "react";
 import OnboardingForm from "../components/OnboardingForm";
 import Navbar from "../components/layout/Navbar";
 import { Sidebar, TelemetryPanel } from "../components/agent/Sidebar";
@@ -13,6 +13,7 @@ export default function AgentDashboard({
   chatLoading,
   loadingMore,
   hasMore,
+  sending,
   fetchMoreMessages,
   sendMessage,
   ragToggles,
@@ -22,7 +23,6 @@ export default function AgentDashboard({
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [bentoOpen, setBentoOpen] = useState(true);
   const [inputText, setInputText] = useState("");
-  const [sending, setSending] = useState(false);
   const [isNewChat, setIsNewChat] = useState(false);
   const [activeLogId, setActiveLogId] = useState(null);
 
@@ -88,43 +88,10 @@ export default function AgentDashboard({
 
     const queryText = inputText;
     setInputText("");
-    setSending(true);
     setIsNewChat(false); // Reset empty state upon sending a prompt
 
-    try {
-      // 1. Log user prompt in Firestore
-      await sendMessage("user", queryText);
-
-      // 2. Query our Vercel Serverless Function proxy, passing profile and emotional sliders
-      const chatRes = await fetch("/api/chat", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          messages: [
-            ...messages.map(m => ({ role: m.role, content: m.content })), 
-            { role: "user", content: queryText }
-          ],
-          userProfile: profile, // Includes basicInfo background grounding
-          emotionalAspects: emotionalAspects, // Live dynamic parameters
-          toggles: ragToggles,
-          queryText: queryText
-        })
-      });
-
-      if (!chatRes.ok) throw new Error("Vercel Serverless routing returned error status.");
-      
-      const chatData = await chatRes.json();
-      const aiReply = chatData.choices?.[0]?.message?.content || "Companion routing network error.";
-      const fetchedSources = chatData.sources || [];
-
-      // 3. Log agent reply in Firestore alongside real scraped sources (Perplexity-style!)
-      await sendMessage("assistant", aiReply, fetchedSources);
-    } catch (err) {
-      console.error(err);
-      await sendMessage("assistant", "⚠️ Server proxy connection error. Please verify dynamic scraper settings.", []);
-    } finally {
-      setSending(false);
-    }
+    // Dispatch directly to custom hook state manager!
+    await sendMessage(queryText, emotionalAspects, ragToggles, isNewChat);
   };
 
   const handleProfileSave = async (e) => {

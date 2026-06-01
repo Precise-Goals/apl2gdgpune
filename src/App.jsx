@@ -97,8 +97,9 @@ export default function App() {
     loading: chatLoading, 
     loadingMore, 
     hasMore, 
+    sending: chatSending,
     fetchMoreMessages, 
-    appendMessage 
+    sendMessage: dispatchMessage 
   } = useMellowChat(activeUid);
 
   const handleEmailAuth = async (e) => {
@@ -151,14 +152,10 @@ export default function App() {
     }
   };
 
-  const handleSendMessage = async (role, content, sources = null) => {
-    const savedMsg = await appendMessage(role, content, profile?.characterPreference, sources);
-    if (role === "user") {
-      const tokensConsumpted = Math.floor(Math.random() * 45) + 30;
-      await logComputeUsage(tokensConsumpted);
-    }
-    return savedMsg;
+  const handleSendMessage = async (queryText, emotionalAspects, ragToggles, clearFeed) => {
+    await dispatchMessage(queryText, profile, emotionalAspects, ragToggles, logComputeUsage, clearFeed);
   };
+
 
   const handleToggleRag = (toggleKey) => {
     setRagToggles(prev => ({
@@ -209,6 +206,7 @@ export default function App() {
                     chatLoading={chatLoading}
                     loadingMore={loadingMore}
                     hasMore={hasMore}
+                    sending={chatSending}
                     fetchMoreMessages={fetchMoreMessages}
                     sendMessage={handleSendMessage}
                     ragToggles={ragToggles}

@@ -17,6 +17,7 @@ export function useMellowChat(userId) {
   const [loadingMore, setLoadingMore] = useState(false);
   const [lastDoc, setLastDoc] = useState(null);
   const [hasMore, setHasMore] = useState(true);
+  const [sending, setSending] = useState(false);
 
   // Initialize and load the first 25 messages
   const loadInitialMessages = useCallback(async () => {
@@ -122,13 +123,79 @@ export function useMellowChat(userId) {
     }
   };
 
+  // Send Message encapsulating server POST + UI sync
+  const sendMessage = async (
+    queryText, 
+    profile, 
+    emotionalAspects, 
+    ragToggles, 
+    logComputeUsage,
+    clearFeedOnSend = false
+  ) => {
+    if (!userId || !queryText.trim() || sending) return;
+    setSending(true);
+
+    // If starting a fresh chat slate in the UI, we can clear the active feed state array
+    if (clearFeedOnSend) {
+      setMessages([]);
+    }
+
+    try {
+      // 1. Add user message locally and to Firestore
+      await appendMessage("user", queryText, profile?.characterPreference);
+
+      // 2. Trigger compute consumption log callback
+      if (logComputeUsage) {
+        const tokensConsumpted = Math.floor(Math.random() * 45) + 30;
+        await logComputeUsage(tokensConsumpted);
+      }
+
+      // 3. Post prompt matrix to our serverless endpoint
+      const chatRes = await fetch("/api/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          messages: [
+            ...(clearFeedOnSend ? [] : messages.map(m => ({ role: m.role, content: m.content }))),
+            { role: "user", content: queryText }
+          ],
+          userProfile: profile,
+          emotionalAspects: emotionalAspects,
+          toggles: ragToggles,
+          queryText: queryText
+        })
+      });
+
+      if (!chatRes.ok) throw new Error("Vercel Serverless proxy completed error.");
+
+      const chatData = await chatRes.json();
+      const aiReply = chatData.choices?.[0]?.message?.content || "Companion routing network error.";
+      const fetchedSources = chatData.sources || [];
+
+      // 4. Add assistant response locally and to Firestore
+      await appendMessage("assistant", aiReply, profile?.characterPreference, fetchedSources);
+    } catch (err) {
+      console.error("[sendMessage Hook Error]:", err);
+      await appendMessage(
+        "assistant",
+        "⚠️ Server proxy connection error. Please verify dynamic scraper settings.",
+        profile?.characterPreference,
+        []
+      );
+    } finally {
+      setSending(false);
+    }
+  };
+
   return {
     messages,
     loading,
     loadingMore,
     hasMore,
+    sending,
     fetchMoreMessages,
     appendMessage,
+    sendMessage,
     reloadChat: loadInitialMessages
   };
 }
