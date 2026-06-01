@@ -66,7 +66,7 @@ export default function Navbar({ isAuthenticated, profile, handleLogout, onOpenA
           ) : (
             <div style={{ position: "relative" }}>
               {/* Active Profile Circle */}
-              <button
+              {/* <button
                 type="button"
                 onClick={() => setDropdownOpen(!dropdownOpen)}
                 title={`Active Profile: ${profile?.alias || "Nomad"}`}
@@ -89,7 +89,7 @@ export default function Navbar({ isAuthenticated, profile, handleLogout, onOpenA
                 onMouseOut={(e) => e.currentTarget.style.transform = "scale(1)"}
               >
                 {getAvatar()}
-              </button>
+              </button> */}
 
               {/* Polished Dropdown Avatar Menu */}
               {dropdownOpen && (
