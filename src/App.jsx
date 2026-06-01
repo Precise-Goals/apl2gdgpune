@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { BrowserRouter, Routes, Route, NavLink, Navigate, Link } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { useWeb3Auth } from "./hooks/useWeb3Auth";
 import { useBentoProfile } from "./hooks/useBentoProfile";
 import { useMellowChat } from "./hooks/useMellowChat";
@@ -12,10 +12,11 @@ import {
   onAuthStateChanged,
   createUserWithEmailAndPassword
 } from "firebase/auth";
+import { ThemeProvider } from "./context/ThemeContext";
 
 // Page Components
 import Home from "./pages/Home";
-import Agent from "./pages/Agent";
+import AgentDashboard from "./pages/AgentDashboard";
 import About from "./pages/About";
 import Docs from "./pages/Docs";
 import Contact from "./pages/Contact";
@@ -150,8 +151,8 @@ export default function App() {
     }
   };
 
-  const handleSendMessage = async (role, content) => {
-    const savedMsg = await appendMessage(role, content, profile.characterPreference);
+  const handleSendMessage = async (role, content, sources = null) => {
+    const savedMsg = await appendMessage(role, content, profile?.characterPreference, sources);
     if (role === "user") {
       const tokensConsumpted = Math.floor(Math.random() * 45) + 30;
       await logComputeUsage(tokensConsumpted);
@@ -179,240 +180,206 @@ export default function App() {
   const isAuthenticated = !!activeUid;
 
   return (
-    <BrowserRouter>
-      <div className="app-container">
-        
-        {/* Dynamic Claude-style header */}
-        <header className="header-nav">
-          <div style={{ display: "flex", alignItems: "center", gap: "25px" }}>
-            
-            {/* Top-Left: Get Started link if logged out, Profile Icon if logged in */}
-            <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-              {!isAuthenticated ? (
-                <button 
-                  type="button"
-                  onClick={() => {
+    <ThemeProvider>
+      <BrowserRouter>
+        <div className="app-container" style={{ minHeight: "100vh", display: "flex", flexDirection: "column" }}>
+          
+          {/* Unified SPA Page Routing Matrix */}
+          <div className="main-routed-view" style={{ flex: 1, display: "flex", flexDirection: "column" }}>
+            <Routes>
+              <Route path="/" element={
+                <Home 
+                  isAuthenticated={isAuthenticated} 
+                  onOpenAuth={() => {
                     setAuthError(null);
                     setShowAuthModal(true);
                   }}
-                  className="flat-btn"
-                  style={{ border: "1px solid var(--accent-coral)", color: "var(--accent-coral)", padding: "6px 14px", fontSize: "0.8rem", textTransform: "uppercase", letterSpacing: "0.05em", fontWeight: "600" }}
-                >
-                  Get Started ✦
-                </button>
-              ) : (
-                <Link to="/agent" title={`Active Profile: ${profile.alias || 'Nomad'}`}>
-                  <div style={{
-                    width: "32px",
-                    height: "32px",
-                    borderRadius: "50%",
-                    border: "1px solid var(--text-charcoal)",
-                    background: "var(--sand-dark)",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    fontSize: "1.1rem",
-                    cursor: "pointer"
-                  }}>
-                    {profile.characterPreference === "cyberpunk_hacker" ? "🤖" :
-                     profile.characterPreference === "synthwave_samurai" ? "👺" :
-                     profile.characterPreference === "solarpunk_mystic" ? "👽" :
-                     profile.characterPreference === "retro_gamer" ? "👾" : "👤"}
-                  </div>
-                </Link>
-              )}
-            </div>
-
-            {/* Logo Signature */}
-            <Link to="/" style={{ display: "flex", alignItems: "center", gap: "6px", textDecoration: "none" }}>
-              <span style={{ color: "var(--accent-coral)", fontSize: "1.4rem" }}>✦</span>
-              <span style={{ fontFamily: "var(--font-serif)", fontSize: "1.3rem", fontWeight: "500", color: "var(--text-charcoal)", letterSpacing: "-0.02em" }}>Mellow</span>
-            </Link>
-          </div>
-
-          {/* Clean Flat Navigation list */}
-          <nav style={{ display: "flex", alignItems: "center", gap: "25px" }}>
-            <NavLink to="/" className={({ isActive }) => `nav-link ${isActive ? "active" : ""}`}>Home</NavLink>
-            {isAuthenticated && (
-              <NavLink to="/agent" className={({ isActive }) => `nav-link ${isActive ? "active" : ""}`}>Agent workspace</NavLink>
-            )}
-            <NavLink to="/about" className={({ isActive }) => `nav-link ${isActive ? "active" : ""}`}>About</NavLink>
-            <NavLink to="/docs" className={({ isActive }) => `nav-link ${isActive ? "active" : ""}`}>Docs</NavLink>
-            <NavLink to="/contact" className={({ isActive }) => `nav-link ${isActive ? "active" : ""}`}>Contact</NavLink>
-            
-            {isAuthenticated && (
-              <button 
-                type="button"
-                onClick={handleLogout} 
-                className="flat-btn" 
-                style={{ padding: "5px 12px", fontSize: "0.75rem", textTransform: "uppercase", marginLeft: "10px" }}
-              >
-                Sign Out
-              </button>
-            )}
-          </nav>
-        </header>
-
-        {/* Unified SPA Page Routing Matrix */}
-        <div className="main-routed-view">
-          <Routes>
-            <Route path="/" element={
-              <Home 
-                isAuthenticated={isAuthenticated} 
-                onOpenAuth={() => setShowAuthModal(true)} 
-              />
-            } />
-            <Route path="/agent" element={
-              isAuthenticated ? (
-                <Agent 
-                  userId={activeUid}
                   profile={profile}
-                  updateProfile={updateProfileFields}
-                  messages={messages}
-                  chatLoading={chatLoading}
-                  loadingMore={loadingMore}
-                  hasMore={hasMore}
-                  fetchMoreMessages={fetchMoreMessages}
-                  sendMessage={handleSendMessage}
-                  ragToggles={ragToggles}
-                  onToggleRag={handleToggleRag}
+                  handleLogout={handleLogout}
                 />
-              ) : (
-                <Navigate to="/" replace />
-              )
-            } />
-            <Route path="/about" element={<About />} />
-            <Route path="/docs" element={<Docs />} />
-            <Route path="/contact" element={<Contact />} />
-            <Route path="*" element={<Navigate to="/" replace />} />
-          </Routes>
-        </div>
-
-        {/* Minimalist Footer */}
-        <footer style={{ padding: "20px 40px", borderTop: "1px solid var(--border-charcoal)", background: "var(--bg-paper)", fontSize: "0.8rem", color: "var(--text-charcoal)", textAlign: "center", display: "flex", justifyContent: "space-between", flexWrap: "wrap", gap: "10px" }}>
-          <span>© 2026 Mellow Conversational Engine. Made by Team Falcons May 2026.</span>
-          <span style={{ opacity: 0.6 }}>High-Fidelity RAG-Optimized Research System</span>
-        </footer>
-
-        {/* =========================================================
-           Unified Flat Authentication Popup (Claude Aesthetic modal)
-           ========================================================= */}
-        {showAuthModal && (
-          <div style={{
-            position: "fixed",
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            background: "rgba(55, 56, 58, 0.4)",
-            backdropFilter: "blur(4px)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            zIndex: 999
-          }}>
-            <div className="flat-card" style={{ maxWidth: "420px", width: "100%", padding: "40px 30px", position: "relative" }}>
-              {/* Close Button */}
-              <button 
-                type="button"
-                onClick={() => setShowAuthModal(false)}
-                style={{ position: "absolute", top: "15px", right: "20px", background: "none", border: "none", fontSize: "1.5rem", cursor: "pointer", color: "var(--text-charcoal)" }}
-              >
-                ×
-              </button>
-
-              <div style={{ display: "flex", justifyContent: "center", gap: "6px", color: "var(--accent-coral)", fontSize: "1.5rem", marginBottom: "10px" }}>
-                <span>✦</span>
-              </div>
-              <h2 style={{ fontSize: "2rem", marginBottom: "8px", textAlign: "center" }}>Join the Mellow Node</h2>
-              <p style={{ fontSize: "0.85rem", color: "var(--text-charcoal)", opacity: 0.8, marginBottom: "25px", textAlign: "center" }}>
-                Select an authentication gateway to open your workspace.
-              </p>
-
-              {authError && (
-                <div style={{ border: "1px solid var(--accent-coral)", padding: "10px", color: "var(--accent-coral)", fontSize: "0.8rem", marginBottom: "15px", borderRadius: "2px" }}>
-                  {authError}
-                </div>
-              )}
-
-              {web3Error && (
-                <div style={{ border: "1px solid var(--accent-coral)", padding: "10px", color: "var(--accent-coral)", fontSize: "0.8rem", marginBottom: "15px", borderRadius: "2px" }}>
-                  {web3Error}
-                </div>
-              )}
-
-              {/* Web3 MetaMask connect */}
-              <button 
-                type="button"
-                onClick={async () => {
-                  try {
-                    await connectWallet();
-                    setShowAuthModal(false);
-                  } catch {}
-                }} 
-                disabled={web3Loading}
-                className="flat-btn flat-btn-primary" 
-                style={{ width: "100%", justifyContent: "center", marginBottom: "12px", background: "#E89B4A", border: "1px solid #E89B4A" }}
-              >
-                {web3Loading ? "Executing Challenge..." : "Connect MetaMask Wallet 🦊"}
-              </button>
-
-              <div style={{ display: "flex", alignItems: "center", gap: "10px", margin: "15px 0", color: "var(--text-charcoal)", opacity: 0.6, fontSize: "0.8rem" }}>
-                <div style={{ flex: 1, height: "1px", background: "var(--border-charcoal)" }}></div>
-                <span>OR</span>
-                <div style={{ flex: 1, height: "1px", background: "var(--border-charcoal)" }}></div>
-              </div>
-
-              {/* Web2 Form access */}
-              <form onSubmit={handleEmailAuth} style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
-                <input 
-                  type="email" 
-                  className="flat-input" 
-                  placeholder="Email account or test@admin.com" 
-                  value={emailInput}
-                  onChange={(e) => setEmailInput(e.target.value)}
-                  required 
-                />
-                <input 
-                  type="password" 
-                  className="flat-input" 
-                  placeholder="Password or testadmin" 
-                  value={passwordInput}
-                  onChange={(e) => setPasswordInput(e.target.value)}
-                  required 
-                />
-                <button type="submit" className="flat-btn flat-btn-primary" style={{ width: "100%", justifyContent: "center", marginTop: "5px" }}>
-                  {isRegistering ? "Register Account" : "Access Workspace"}
-                </button>
-              </form>
-
-              {/* Google popup auth */}
-              <button 
-                type="button"
-                onClick={handleGoogleLogin} 
-                className="flat-btn" 
-                style={{ width: "100%", justifyContent: "center", marginTop: "12px" }}
-              >
-                Sign in with Google 🌐
-              </button>
-
-              <div style={{ marginTop: "20px", fontSize: "0.8rem", textAlign: "center" }}>
-                <a 
-                  href="#" 
-                  onClick={(e) => {
-                    e.preventDefault();
-                    setIsRegistering(!isRegistering);
+              } />
+              
+              <Route path="/agent" element={
+                isAuthenticated ? (
+                  <AgentDashboard 
+                    userId={activeUid}
+                    profile={profile}
+                    updateProfile={updateProfileFields}
+                    messages={messages}
+                    chatLoading={chatLoading}
+                    loadingMore={loadingMore}
+                    hasMore={hasMore}
+                    fetchMoreMessages={fetchMoreMessages}
+                    sendMessage={handleSendMessage}
+                    ragToggles={ragToggles}
+                    onToggleRag={handleToggleRag}
+                    handleLogout={handleLogout}
+                  />
+                ) : (
+                  <Navigate to="/" replace />
+                )
+              } />
+              
+              <Route path="/about" element={
+                <About 
+                  isAuthenticated={isAuthenticated} 
+                  onOpenAuth={() => {
+                    setAuthError(null);
+                    setShowAuthModal(true);
                   }}
-                  style={{ color: "var(--accent-coral)" }}
+                  profile={profile}
+                  handleLogout={handleLogout}
+                />
+              } />
+              
+              <Route path="/docs" element={
+                <Docs 
+                  isAuthenticated={isAuthenticated} 
+                  onOpenAuth={() => {
+                    setAuthError(null);
+                    setShowAuthModal(true);
+                  }}
+                  profile={profile}
+                  handleLogout={handleLogout}
+                />
+              } />
+              
+              <Route path="/contact" element={
+                <Contact 
+                  isAuthenticated={isAuthenticated} 
+                  onOpenAuth={() => {
+                    setAuthError(null);
+                    setShowAuthModal(true);
+                  }}
+                  profile={profile}
+                  handleLogout={handleLogout}
+                />
+              } />
+              
+              <Route path="*" element={<Navigate to="/" replace />} />
+            </Routes>
+          </div>
+
+          {/* =========================================================
+             Unified Flat Authentication Popup (Claude Aesthetic modal)
+             ========================================================= */}
+          {showAuthModal && (
+            <div style={{
+              position: "fixed",
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              background: "rgba(55, 56, 58, 0.4)",
+              backdropFilter: "blur(4px)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              zIndex: 9999
+            }}>
+              <div className="flat-card" style={{ maxWidth: "420px", width: "100%", padding: "40px 30px", position: "relative" }}>
+                {/* Close Button */}
+                <button 
+                  type="button"
+                  onClick={() => setShowAuthModal(false)}
+                  style={{ position: "absolute", top: "15px", right: "20px", background: "none", border: "none", fontSize: "1.5rem", cursor: "pointer", color: "var(--text-charcoal)" }}
                 >
-                  {isRegistering ? "Already have an account? Sign In" : "Need Web2 credentials? Register here"}
-                </a>
+                  ×
+                </button>
+
+                <div style={{ display: "flex", justifyContent: "center", gap: "6px", color: "var(--accent-coral)", fontSize: "1.5rem", marginBottom: "10px" }}>
+                  <span>✦</span>
+                </div>
+                <h2 style={{ fontSize: "2rem", marginBottom: "8px", textAlign: "center" }}>Join the Mellow Node</h2>
+                <p style={{ fontSize: "0.85rem", color: "var(--text-charcoal)", opacity: 0.8, marginBottom: "25px", textAlign: "center" }}>
+                  Select an authentication gateway to open your workspace.
+                </p>
+
+                {authError && (
+                  <div style={{ border: "1px solid var(--accent-coral)", padding: "10px", color: "var(--accent-coral)", fontSize: "0.8rem", marginBottom: "15px", borderRadius: "2px" }}>
+                    {authError}
+                  </div>
+                )}
+
+                {web3Error && (
+                  <div style={{ border: "1px solid var(--accent-coral)", padding: "10px", color: "var(--accent-coral)", fontSize: "0.8rem", marginBottom: "15px", borderRadius: "2px" }}>
+                    {web3Error}
+                  </div>
+                )}
+
+                {/* Web3 MetaMask connect */}
+                <button 
+                  type="button"
+                  onClick={async () => {
+                    try {
+                      await connectWallet();
+                      setShowAuthModal(false);
+                    } catch {}
+                  }} 
+                  disabled={web3Loading}
+                  className="flat-btn flat-btn-primary" 
+                  style={{ width: "100%", justifyContent: "center", marginBottom: "12px", background: "#E89B4A", border: "1px solid #E89B4A", borderRadius: "24px" }}
+                >
+                  {web3Loading ? "Executing Challenge..." : "Connect MetaMask Wallet 🦊"}
+                </button>
+
+                <div style={{ display: "flex", alignItems: "center", gap: "10px", margin: "15px 0", color: "var(--text-charcoal)", opacity: 0.6, fontSize: "0.8rem" }}>
+                  <div style={{ flex: 1, height: "1px", background: "var(--border-charcoal)" }}></div>
+                  <span>OR</span>
+                  <div style={{ flex: 1, height: "1px", background: "var(--border-charcoal)" }}></div>
+                </div>
+
+                {/* Web2 Form access */}
+                <form onSubmit={handleEmailAuth} style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+                  <input 
+                    type="email" 
+                    className="flat-input" 
+                    placeholder="Email account or test@admin.com" 
+                    value={emailInput}
+                    onChange={(e) => setEmailInput(e.target.value)}
+                    required 
+                  />
+                  <input 
+                    type="password" 
+                    className="flat-input" 
+                    placeholder="Password or testadmin" 
+                    value={passwordInput}
+                    onChange={(e) => setPasswordInput(e.target.value)}
+                    required 
+                  />
+                  <button type="submit" className="flat-btn flat-btn-primary" style={{ width: "100%", justifyContent: "center", marginTop: "5px", borderRadius: "24px" }}>
+                    {isRegistering ? "Register Account" : "Access Workspace"}
+                  </button>
+                </form>
+
+                {/* Google popup auth */}
+                <button 
+                  type="button"
+                  onClick={handleGoogleLogin} 
+                  className="flat-btn" 
+                  style={{ width: "100%", justifyContent: "center", marginTop: "12px", borderRadius: "24px" }}
+                >
+                  Sign in with Google 🌐
+                </button>
+
+                <div style={{ marginTop: "20px", fontSize: "0.8rem", textAlign: "center" }}>
+                  <a 
+                    href="#" 
+                    onClick={(e) => {
+                      e.preventDefault();
+                      setIsRegistering(!isRegistering);
+                    }}
+                    style={{ color: "var(--accent-coral)" }}
+                  >
+                    {isRegistering ? "Already have an account? Sign In" : "Need Web2 credentials? Register here"}
+                  </a>
+                </div>
               </div>
             </div>
-          </div>
-        )}
+          )}
 
-      </div>
-    </BrowserRouter>
+        </div>
+      </BrowserRouter>
+    </ThemeProvider>
   );
 }
